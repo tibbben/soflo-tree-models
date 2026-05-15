@@ -1,0 +1,11 @@
+# for the project
+download/
+
+# for python
+__pycache__/
+
+# for jupyter
+.ipynb_checkpoints/
+
+# for macs
+.DS_Store
