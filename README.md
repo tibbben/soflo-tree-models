@@ -7,6 +7,9 @@ A playground for image segmentation to detect the trees of South Florida.
 - ./bicy_share.qgs
   is a QGIS file that will open if you place the download folder from the [shared Big Cypress folder](https://miami.box.com/s/qd4j3x2pf0v2gn9knjz9r9ffnsyku4wx) at the top level of this repo. You can visualize the cropped images, the approximate survey locations, and the historical survey data.
 
+- ./gables_share.qgs
+  is a QGIS file that will open if you place the download folder from the [shared Gables Campus folder](https://miami.box.com/s/mq6k0vj8f89h4w91u7pqdocetjpoma2f) at the top level of this repo. You can visualize the drone survey, the tree inventory, and the deep learning models from ArcGIS Pro.
+
 ## jupyter
 
 - ./jupyter/crop_orthoimages.ipynb
