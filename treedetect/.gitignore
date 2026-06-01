@@ -12,3 +12,8 @@ __pycache__/
 *.pyc
 .DS_Store
 .ipynb_checkpoints/
+
+# local virtualenv + Lightning training logs
+.venv/
+version_*/
+lightning_logs/

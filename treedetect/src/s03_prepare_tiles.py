@@ -18,8 +18,13 @@ import pandas as pd
 import rasterio
 from rasterio.mask import mask
 from shapely.geometry import box
+from PIL import Image
 sys.path.append(str(Path(__file__).resolve().parent))
 import common as C
+
+# deepforest 2.x split_raster loads the full AOI clip through PIL; our clips are
+# large (~180 Mpx) and trusted, so lift PIL's decompression-bomb ceiling.
+Image.MAX_IMAGE_PIXELS = None
 
 
 def main():
@@ -66,10 +71,10 @@ def main():
         print(f"{name}: {len(ann)} boxes in pixel space -> {ann_csv}")
 
         outdir = tiles_root / name; outdir.mkdir(exist_ok=True)
-        tiled = preprocess.split_raster(
+        tiled = preprocess.split_raster(   # deepforest 2.x: base_dir -> save_dir
             annotations_file=str(ann_csv),
             path_to_raster=str(clip_tif),
-            base_dir=str(outdir),
+            save_dir=str(outdir),
             patch_size=patch_px,
             patch_overlap=cfg["tiles"]["patch_overlap"],
         )
@@ -78,6 +83,43 @@ def main():
             lambda g: len(g) >= cfg["tiles"]["min_boxes_per_tile"])
         keep.to_csv(outdir / f"{name}_tiles.csv", index=False)
         print(f"{name}: {keep.image_path.nunique()} tiles, {len(keep)} boxes -> {outdir}")
+
+    _tiles_overview_figure(cfg, tiles_root)
+
+
+def _tiles_overview_figure(cfg, tiles_root):
+    """Render each AOI clip (downsampled) with its label boxes -> reports/tiles_overview.png."""
+    import numpy as np
+    import pandas as pd
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Rectangle
+    C.style()
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 7))
+    for ax, name in zip(axes, ("train", "test")):
+        clip_tif = tiles_root / f"{name}_clip.tif"
+        ann_csv = tiles_root / f"{name}_clip_annotations.csv"
+        if not clip_tif.exists():
+            ax.axis("off"); continue
+        with rasterio.open(clip_tif) as src:
+            step = max(1, int(round(max(src.width, src.height) / 1500)))
+            out_h, out_w = src.height // step, src.width // step
+            img = src.read([1, 2, 3], out_shape=(3, out_h, out_w))
+        ax.imshow(np.transpose(img, (1, 2, 0)))
+        ann = pd.read_csv(ann_csv) if ann_csv.exists() else pd.DataFrame()
+        for _, r in ann.iterrows():
+            ax.add_patch(Rectangle((r.xmin / step, r.ymin / step),
+                                   (r.xmax - r.xmin) / step, (r.ymax - r.ymin) / step,
+                                   fill=False, edgecolor="#1b7837", linewidth=0.4))
+        ax.set_title(f"{name} AOI clip — {len(ann)} label boxes  (1:{step} downsample)")
+        ax.axis("off")
+    fig.suptitle("s03 — orthomosaic AOI clips with point-first label boxes", fontsize=12)
+    fig.tight_layout()
+    out = C.p(cfg, cfg["reports_dir"]) / "tiles_overview.png"
+    fig.savefig(out, dpi=150, bbox_inches="tight"); plt.close(fig)
+    print(f"wrote {out}")
 
 
 if __name__ == "__main__":
