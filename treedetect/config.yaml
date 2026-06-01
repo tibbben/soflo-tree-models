@@ -1,0 +1,43 @@
+# ── treedetect configuration ───────────────────────────────────────────────
+# All paths are relative to the repo root. Edit these to point at your data.
+
+inputs:
+  points:        data/um_gables_trees.geojson          # botanical inventory (red dots)
+  segmentation:  data/um_gables_tree_segmentation.geojson  # prior-model crown polygons
+  detection:     data/um_gables_tree_detection.geojson     # prior-model boxes (reference only)
+  orthomosaic:   data/umgables_2025_drone_survey.tif    # the drone RGB ortho (put it here)
+
+crs: "EPSG:32617"            # UTM 17N — everything is already in this, in metres
+
+labels:
+  tree_flag_field: point_is_tree   # keep only rows where this == "Yes"
+  tree_flag_value: "Yes"
+  species_field:   tax_genus_species
+  fallback_box_m:  null            # null = auto (median clean-crown size); or set e.g. 6.9
+
+# Area-of-interest split. Two ways to define each AOI:
+#   bbox_fraction: [fx, fy] carves a corner of the data bounding box, OR
+#   bounds: [minx, miny, maxx, maxy] in CRS units (read these off QGIS for precision).
+aois:
+  train:                       # bottom-left in the Gables ortho
+    corner: bottom_left
+    bbox_fraction: [0.42, 0.42]
+    bounds: null
+  test:                        # top-right
+    corner: top_right
+    bbox_fraction: [0.42, 0.42]
+    bounds: null
+
+tiles:
+  patch_size_m: 40.0           # tile footprint on the ground; pixels computed from GSD
+  patch_overlap: 0.10          # fractional overlap between adjacent tiles
+  min_boxes_per_tile: 1        # drop empty tiles
+
+train:
+  epochs: 15
+  batch_size: 4
+  score_thresh: 0.30           # confidence cutoff at inference
+  iou_eval: 0.4                # IoU threshold for matching in evaluation
+
+outputs_dir: outputs
+reports_dir: reports

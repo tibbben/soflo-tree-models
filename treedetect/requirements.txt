@@ -1,0 +1,12 @@
+# core geospatial + labels (steps 01-02 run with just these)
+geopandas>=1.0
+shapely>=2.0
+rasterio>=1.3
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.7
+pyyaml>=6.0
+
+# detection model (steps 03-06)
+deepforest>=1.4
+torch>=2.0

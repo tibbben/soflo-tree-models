@@ -1,0 +1,14 @@
+# large rasters / tiles — keep out of git (commit the labels, not the imagery)
+data/*.tif
+data/*.tiff
+outputs/tiles/
+outputs/model/
+*.ckpt
+
+# the source geojsons can be large too; kept out of git (stored in ~/Downloads)
+data/*.geojson
+
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
