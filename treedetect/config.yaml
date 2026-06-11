@@ -34,10 +34,12 @@ tiles:
   min_boxes_per_tile: 1        # drop empty tiles
 
 train:
-  epochs: 15
-  batch_size: 4
+  epochs: 50                   # max epochs; early stopping usually halts sooner
+  batch_size: 2                # conservative for 18 GB unified memory (MPS); bump if it fits
   score_thresh: 0.30           # confidence cutoff at inference
   iou_eval: 0.4                # IoU threshold for matching in evaluation
+  early_stop_patience: 8       # stop after N epochs with no val-recall improvement
+  val_accuracy_interval: 1     # compute val precision/recall every epoch (needed for early stop)
 
 outputs_dir: outputs
 reports_dir: reports

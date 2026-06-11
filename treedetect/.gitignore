@@ -3,7 +3,9 @@ data/*.tif
 data/*.tiff
 outputs/tiles/
 outputs/model/
+# model weights — never commit (code + metrics + figures only)
 *.ckpt
+*.pt
 
 # the source geojsons can be large too; kept out of git (stored in ~/Downloads)
 data/*.geojson

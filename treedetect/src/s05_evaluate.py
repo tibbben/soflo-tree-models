@@ -4,6 +4,9 @@ Step 05 — Evaluate the fine-tuned model on the held-out test AOI.  [local]
 Reports precision / recall / box-recall at the configured IoU threshold and saves
 a side-by-side figure (ground truth vs prediction) for one sample tile.
 """
+import os
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+
 import sys
 from pathlib import Path
 import pandas as pd
@@ -19,7 +22,9 @@ def main():
     test_dir = od / "tiles" / "test"
     test_csv = test_dir / "test_tiles.csv"
 
-    m = df_main.deepforest.load_from_checkpoint(str(od / "model" / "treedetect_finetuned.ckpt"))
+    ckpt = C.best_checkpoint(od / "model")
+    print(f"evaluating checkpoint: {ckpt.name}")
+    m = df_main.deepforest.load_from_checkpoint(str(ckpt))
     m.config["score_thresh"] = cfg["train"]["score_thresh"]
 
     # deepforest 2.x: evaluate(csv_file, iou_threshold=None, root_dir=None, ...)

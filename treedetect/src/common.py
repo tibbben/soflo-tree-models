@@ -17,6 +17,18 @@ def p(cfg, rel):
     return cfg["_root"] / rel
 
 
+def best_checkpoint(model_dir):
+    """Resolve the checkpoint to evaluate: prefer best-by-val-recall, then the
+    last epoch, then the legacy final checkpoint, else the newest .ckpt."""
+    model_dir = Path(model_dir)
+    for name in ("treedetect_best_recall.ckpt", "last.ckpt", "treedetect_finetuned.ckpt"):
+        pth = model_dir / name
+        if pth.exists():
+            return pth
+    ckpts = sorted(model_dir.glob("*.ckpt"), key=lambda q: q.stat().st_mtime)
+    return ckpts[-1] if ckpts else model_dir / "treedetect_finetuned.ckpt"
+
+
 def aoi_bounds(aoi_cfg, data_bounds):
     """Return [minx, miny, maxx, maxy] for an AOI given the data bounding box.
 

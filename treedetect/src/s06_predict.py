@@ -6,6 +6,9 @@ EPSG:32617, and writes outputs/predicted_trees.geojson — drop it straight into
 QGIS on top of the ortho. Also writes a prediction-overlay figure and a count
 comparison vs the inventory.
 """
+import os
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+
 import sys
 from pathlib import Path
 import geopandas as gpd
@@ -35,7 +38,9 @@ def main():
     od = C.p(cfg, cfg["outputs_dir"])
     clip = od / "tiles" / "test_clip.tif"
 
-    m = df_main.deepforest.load_from_checkpoint(str(od / "model" / "treedetect_finetuned.ckpt"))
+    ckpt = C.best_checkpoint(od / "model")
+    print(f"predicting with checkpoint: {ckpt.name}")
+    m = df_main.deepforest.load_from_checkpoint(str(ckpt))
     m.config["score_thresh"] = cfg["train"]["score_thresh"]
 
     with rasterio.open(clip) as src:
