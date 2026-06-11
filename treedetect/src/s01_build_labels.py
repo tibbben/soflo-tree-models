@@ -25,8 +25,8 @@ def main():
     cfg = C.load_config()
     L = cfg["labels"]
 
-    pts = gpd.read_file(C.p(cfg, cfg["inputs"]["points"])).to_crs(cfg["crs"])
-    seg = gpd.read_file(C.p(cfg, cfg["inputs"]["segmentation"])).to_crs(cfg["crs"])
+    pts = gpd.read_file(C.input_path(cfg, "points")).to_crs(cfg["crs"])
+    seg = gpd.read_file(C.input_path(cfg, "segmentation")).to_crs(cfg["crs"])
     seg = seg.reset_index(drop=True)
     seg["seg_id"] = seg.index
 

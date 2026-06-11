@@ -40,18 +40,55 @@ See `reports/label_qa.png`.
 
 Steps 01–02 run anywhere. Steps 03–06 need the orthomosaic and `deepforest`/`torch`.
 
-## Run
+## Reproduce / Setup
+
+The input data is **not** in the repo — each user supplies their own copy and
+points the pipeline at it via `SOFLO_DATA_ROOT`. Outputs (tiles, checkpoints,
+figures) are written inside the repo.
 
 ```bash
+# 1. clone + enter the pipeline
+git clone https://github.com/tibbben/soflo-tree-models.git
+cd soflo-tree-models/treedetect
+
+# 2. install dependencies (Python 3.11 recommended; deepforest 2.x + torch)
+python3.11 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-# put the ortho at data/umgables_2025_drone_survey.tif (see config.yaml)
-python src/s01_build_labels.py
-python src/s02_define_aois.py
-python src/s03_prepare_tiles.py
-python src/s04_train.py
-python src/s05_evaluate.py
-python src/s06_predict.py
+
+# 3. point at your local data copy
+cp .env.example .env
+#   then edit .env so SOFLO_DATA_ROOT=/your/path/to/soflo_data
 ```
+
+**Expected data directory** (`$SOFLO_DATA_ROOT`, flat layout — filenames must
+match `config.yaml` `inputs:`):
+
+```
+soflo_data/
+├── umgables_2025_drone_survey_5cm.tif      # orthomosaic — RGB, 5 cm/px, EPSG:32617
+├── um_gables_trees.geojson                 # botanical inventory points (ground truth)
+├── um_gables_tree_segmentation.geojson     # prior-model crown polygons (reference)
+├── um_gables_tree_detection.geojson        # prior-model boxes (reference only)
+└── GDSC_metadata(Metadata).csv             # GDSC tile metadata catalog
+```
+
+`SOFLO_DATA_ROOT` resolves in this order: **env var** → **`data_root:` in
+config.yaml** → a clear error telling you to set it. The orthomosaic + the three
+geojsons (~3.7 GB + ~39 MB) are large and intentionally excluded from git.
+
+**Run order** (s03–s06 need only the orthomosaic; s01–s02 also need the geojsons):
+
+```bash
+python src/s01_build_labels.py    # point-first labels  -> outputs/detection_boxes.geojson
+python src/s02_define_aois.py     # spatial train/test split + aoi_split.png
+python src/s03_prepare_tiles.py   # clip ortho to AOIs, tile + annotate
+python src/s04_train.py           # fine-tune DeepForest (MPS/GPU helps); TD_EPOCHS overrides
+python src/s05_evaluate.py        # precision/recall on the test AOI (best checkpoint)
+python src/s06_predict.py         # predict over test AOI -> outputs/predicted_trees.geojson
+```
+
+To regenerate figures from an existing checkpoint without retraining, run
+s03/s05/s06 only (s05/s06 load the best checkpoint via `common.best_checkpoint`).
 
 ## Configuration — `config.yaml`
 

@@ -32,7 +32,7 @@ def main():
     from deepforest import preprocess  # imported here so other steps don't need DeepForest
 
     od = C.p(cfg, cfg["outputs_dir"])
-    ortho_path = C.p(cfg, cfg["inputs"]["orthomosaic"])
+    ortho_path = C.input_path(cfg, "orthomosaic")
     tiles_root = od / "tiles"; tiles_root.mkdir(parents=True, exist_ok=True)
 
     with rasterio.open(ortho_path) as src:

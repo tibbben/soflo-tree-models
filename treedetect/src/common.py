@@ -1,8 +1,17 @@
 """Shared utilities for the treedetect pipeline."""
+import os
 from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+
+# Load a .env next to config.yaml (if present) so SOFLO_DATA_ROOT can live there.
+# python-dotenv is optional at import time; it is listed in requirements.txt.
+try:
+    from dotenv import load_dotenv
+    load_dotenv(ROOT / ".env")
+except ImportError:
+    pass
 
 
 def load_config():
@@ -13,8 +22,41 @@ def load_config():
 
 
 def p(cfg, rel):
-    """Resolve a repo-relative path from config to an absolute Path."""
+    """Resolve a repo-relative path (outputs / figures) to an absolute Path."""
     return cfg["_root"] / rel
+
+
+def data_root(cfg):
+    """Resolve the external data directory holding the inputs (not in the repo).
+
+    Order: env ``SOFLO_DATA_ROOT`` > ``data_root`` in config.yaml > clear error.
+    """
+    root = os.environ.get("SOFLO_DATA_ROOT") or (cfg.get("data_root") if cfg else None)
+    if not root:
+        raise RuntimeError(
+            "treedetect: no data root configured. The input data is NOT stored in "
+            "the repo — point the pipeline at your local copy by either:\n"
+            "  1. exporting  SOFLO_DATA_ROOT=/path/to/soflo_data , or\n"
+            "  2. copying  .env.example -> .env  and setting SOFLO_DATA_ROOT there, or\n"
+            "  3. setting  data_root:  in config.yaml.\n"
+            "See .env.example for the expected data folder layout."
+        )
+    root = Path(root).expanduser()
+    if not root.exists():
+        raise RuntimeError(
+            f"treedetect: data root does not exist: {root}\n"
+            "Set SOFLO_DATA_ROOT to your local soflo_data directory (see .env.example)."
+        )
+    return root
+
+
+def input_path(cfg, key):
+    """Resolve an input file (orthomosaic / geojsons / metadata) under DATA_ROOT.
+
+    The path is ``DATA_ROOT / cfg['inputs'][key]`` (config values are relative).
+    """
+    rel = cfg["inputs"][key]
+    return data_root(cfg) / rel
 
 
 def best_checkpoint(model_dir):

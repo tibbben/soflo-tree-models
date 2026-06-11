@@ -1,11 +1,18 @@
 # ── treedetect configuration ───────────────────────────────────────────────
-# All paths are relative to the repo root. Edit these to point at your data.
+# INPUT data is NOT stored in the repo. It is resolved under a data root, in order:
+#   env SOFLO_DATA_ROOT  >  `data_root` below  >  error (see .env.example).
+# OUTPUT paths (outputs_dir / reports_dir, near the bottom) stay repo-relative.
 
-inputs:
-  points:        data/um_gables_trees.geojson          # botanical inventory (red dots)
-  segmentation:  data/um_gables_tree_segmentation.geojson  # prior-model crown polygons
-  detection:     data/um_gables_tree_detection.geojson     # prior-model boxes (reference only)
-  orthomosaic:   data/umgables_2025_drone_survey.tif    # the drone RGB ortho (put it here)
+# Optional fallback for the data root. Prefer SOFLO_DATA_ROOT (in .env). Leave
+# empty to require the env var; or set an absolute path, e.g. /path/to/soflo_data
+data_root:
+
+inputs:                          # paths are relative to the data root (above)
+  orthomosaic:   umgables_2025_drone_survey_5cm.tif     # drone RGB ortho, 5 cm/px, EPSG:32617
+  points:        um_gables_trees.geojson                # botanical inventory (ground truth)
+  segmentation:  um_gables_tree_segmentation.geojson    # prior-model crown polygons (reference)
+  detection:     um_gables_tree_detection.geojson       # prior-model boxes (reference only)
+  metadata:      "GDSC_metadata(Metadata).csv"          # GDSC tile metadata catalog
 
 crs: "EPSG:32617"            # UTM 17N — everything is already in this, in metres
 

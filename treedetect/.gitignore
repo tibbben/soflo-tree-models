@@ -19,3 +19,6 @@ __pycache__/
 .venv/
 version_*/
 lightning_logs/
+
+# local data-root config (never commit; ships as .env.example instead)
+.env
