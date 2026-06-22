@@ -25,6 +25,12 @@ labels:
 # Area-of-interest split. Two ways to define each AOI:
 #   bbox_fraction: [fx, fy] carves a corner of the data bounding box, OR
 #   bounds: [minx, miny, maxx, maxy] in CRS units (read these off QGIS for precision).
+#
+# Diagnostic: set swap_aois: true (or env TD_SWAP_AOIS=1) to EXCHANGE which region
+# is train vs test without moving the boundaries. A swapped run auto-redirects its
+# outputs to outputs/swap and reports/swap (override with env TD_OUT_SUBDIR) so it
+# never overwrites the main run.
+swap_aois: false
 aois:
   train:                       # bottom-left in the Gables ortho
     corner: bottom_left

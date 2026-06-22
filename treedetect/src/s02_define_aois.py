@@ -25,9 +25,16 @@ def main():
     boxes = gpd.read_file(od / "detection_boxes.geojson")
     data_bounds = boxes.total_bounds  # minx, miny, maxx, maxy
 
+    # Diagnostic swap: exchange which AOI is train vs test (boundaries unchanged).
+    aois = cfg["aois"]
+    if C.swap_enabled(cfg):
+        aois = {"train": cfg["aois"]["test"], "test": cfg["aois"]["train"]}
+        print("swap_aois ON — train/test AOI definitions exchanged "
+              "(former test region is now train)")
+
     split = {}
     for name in ("train", "test"):
-        b = C.aoi_bounds(cfg["aois"][name], data_bounds)
+        b = C.aoi_bounds(aois[name], data_bounds)
         aoi = gpd.GeoDataFrame({"aoi": [name]}, geometry=[box(*b)], crs=cfg["crs"])
         aoi.to_file(od / f"aoi_{name}.geojson", driver="GeoJSON")
         sel = boxes[boxes.geometry.centroid.within(box(*b))].copy()

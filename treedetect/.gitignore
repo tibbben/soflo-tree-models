@@ -3,6 +3,11 @@ data/*.tif
 data/*.tiff
 outputs/tiles/
 outputs/model/
+# same heavy artifacts for tagged runs (e.g. outputs/swap/tiles, outputs/swap/model)
+outputs/*/tiles/
+outputs/*/model/
+# label file is a per-run duplicate of the committed outputs/detection_boxes.geojson
+outputs/*/detection_boxes.geojson
 # model weights — never commit (code + metrics + figures only)
 *.ckpt
 *.pt

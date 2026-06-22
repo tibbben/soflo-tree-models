@@ -14,10 +14,31 @@ except ImportError:
     pass
 
 
+def swap_enabled(cfg):
+    """Whether to exchange the train/test AOI definitions (diagnostic).
+
+    Env ``TD_SWAP_AOIS`` (1/true/yes/on) overrides the config ``swap_aois`` flag.
+    """
+    v = os.environ.get("TD_SWAP_AOIS")
+    if v is not None:
+        return v.strip().lower() in ("1", "true", "yes", "on")
+    return bool(cfg.get("swap_aois", False))
+
+
 def load_config():
     with open(ROOT / "config.yaml") as f:
         cfg = yaml.safe_load(f)
     cfg["_root"] = ROOT
+    # Optional output redirect so a tagged run (e.g. the swap diagnostic) writes
+    # to a subfolder of outputs/ and reports/ instead of overwriting the main run.
+    # Explicit TD_OUT_SUBDIR wins; otherwise a swapped run defaults to "swap".
+    sub = os.environ.get("TD_OUT_SUBDIR")
+    if sub is None:
+        sub = "swap" if swap_enabled(cfg) else ""
+    sub = sub.strip()
+    if sub:
+        cfg["outputs_dir"] = str(Path(cfg["outputs_dir"]) / sub)
+        cfg["reports_dir"] = str(Path(cfg["reports_dir"]) / sub)
     return cfg
 
 
