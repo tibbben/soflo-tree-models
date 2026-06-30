@@ -1,11 +1,11 @@
 """
 split_dataset.py — Randomly split chips into train/val sets (80/20).
 
-Run from the gables_campus/ folder AFTER chipping everything into train:
+Run from the project root AFTER chipping everything into train:
     python scripts/split_dataset.py
 
 Moves 20% of the chips in images/train + labels/train into images/val + labels/val,
-keeping each image with its matching label. Uses a fixed seed for reproducibility.
+keeping each image with its matching label. Fixed seed for reproducibility.
 """
 
 import os
