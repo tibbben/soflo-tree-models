@@ -22,6 +22,26 @@ labels:
   species_field:   tax_genus_species
   fallback_box_m:  null            # null = auto (median clean-crown size); or set e.g. 6.9
 
+# ── Species classification prep (s07) — labels only, no training ────────────
+# Collapse the botanical taxonomy into a few coarse target classes for a future
+# multi-class detector / crop classifier. We key the map on tax_FAMILY rather
+# than tax_genus_species because the three target classes ARE families (palm =
+# Arecaceae, pine = Pinaceae, cypress = Cupressaceae): one family entry captures
+# every palm genus (Sabal, Roystonea, Cocos, …) with no enumeration, and a
+# cross-check confirmed every Pinus/Taxodium species already sits in the matching
+# family (0 mismatches). Any family not listed -> `other`; trees with no usable
+# family value -> `missing_class` (excluded from the trainable classes, reported
+# as % missing). source_field is joined onto the s01 boxes by point id (pt_id).
+species:
+  source_field:  tax_family
+  fallback_field: tax_genus_species  # only used for reporting/auditing
+  missing_class: unknown             # no usable family -> reported as missing, not trained
+  target_classes: [palm, pine, cypress, other]
+  species_map:                       # family -> target class; unlisted families -> other
+    Arecaceae:    palm
+    Pinaceae:     pine
+    Cupressaceae: cypress
+
 # Area-of-interest split. Two ways to define each AOI:
 #   bbox_fraction: [fx, fy] carves a corner of the data bounding box, OR
 #   bounds: [minx, miny, maxx, maxy] in CRS units (read these off QGIS for precision).
