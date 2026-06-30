@@ -11,6 +11,8 @@ outputs/*/detection_boxes.geojson
 # model weights — never commit (code + metrics + figures only)
 *.ckpt
 *.pt
+# species probe crop cache (regenerable from the ortho; commit metrics + figures only)
+outputs/species_probe/crop_cache.npz
 
 # the source geojsons can be large too; kept out of git (stored in ~/Downloads)
 data/*.geojson

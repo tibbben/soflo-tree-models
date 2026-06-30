@@ -1,0 +1,55 @@
+binary dataset: 6481 boxes  (dropped 507 'unknown')
+  palm     = 2943 (45.4%)
+  non-palm = 3538 (54.6%)  [pine+cypress folded in]
+  majority base rate = 54.6%  (predict-all-non-palm accuracy)
+
+spatial x-band split (easting quantiles 0.60, 0.80):
+  train  n=3888  palm=1841 (47.4%)  non-palm=2047
+  val    n=1296  palm= 614 (47.4%)  non-palm= 682
+  test   n=1297  palm= 488 (37.6%)  non-palm= 809
+
+cropping 6481 boxes from umgables_2025_drone_survey_5cm.tif -> 160x160 ...
+  ...1000 kept (5s)
+  ...2000 kept (10s)
+  ...3000 kept (15s)
+  ...4000 kept (20s)
+  ...5000 kept (25s)
+  ...6000 kept (29s)
+kept 6480 crops; skipped 1 (unreadable/tiny=0, nodata/black=1)
+wrote cache /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/species_probe/crop_cache.npz (429 MB, gitignored)
+
+[linear probe] extracting frozen ResNet18 features ...
+[linear probe] best val acc=0.850
+
+[fine-tune] ResNet18 end-to-end  device=mps lr=0.0001 batch=32 max_epochs=20 patience=5 pos_weight=1.11
+  [epoch 00]  17.1s  train_loss=0.4093  val_loss=0.3365  val_acc=0.8727
+  [epoch 01]  13.2s  train_loss=0.3260  val_loss=0.3448  val_acc=0.8742
+  [epoch 02]  12.4s  train_loss=0.2995  val_loss=0.3788  val_acc=0.8719
+  [epoch 03]  12.4s  train_loss=0.2678  val_loss=0.3812  val_acc=0.8696
+  [epoch 04]  12.4s  train_loss=0.2611  val_loss=0.4295  val_acc=0.8526
+  [epoch 05]  12.4s  train_loss=0.2216  val_loss=0.4452  val_acc=0.8735
+  [epoch 06]  12.5s  train_loss=0.2173  val_loss=0.3721  val_acc=0.8634
+  early stop (no val_acc gain in 5 epochs)
+[fine-tune] best val_acc=0.874  saved finetune_best.pt (gitignored)
+
+===== TEST results (base rate = 54.6%) =====
+  linear_probe  acc= 84.7%  palm P/R/F1=0.827/0.752/0.788  (TP367 FP77 FN121 TN732)
+  finetune      acc= 89.9%  palm P/R/F1=0.905/0.818/0.859  (TP399 FP42 FN89 TN767)
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/species_probe/probe_metrics.csv
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/species_probe/finetune_curve.csv
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/species_probe/confusion_matrix.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/species_probe/finetune_curve.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/species_probe/sample_crops.png
+
+========================= VERDICT =========================
+base rate (predict-all-majority) : 54.6%
+linear probe test accuracy       : 84.7%
+fine-tune   test accuracy        : 89.9%
+best lift over base rate         : +35.3 pts
+palm precision/recall (fine-tune): 0.90/0.82
+errors concentrate in            : false negatives (palms called non-palm)  (FN=89 FP=42)
+==> FEASIBLE: palm-vs-non-palm beats base rate by +35 pts.
+NOTE: this is the GROUND-TRUTH-CROP CEILING. Real end-to-end species
+accuracy will be LOWER — it is bounded by detection recall (any crown
+the detector misses is never classified at all).
+===========================================================
