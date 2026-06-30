@@ -1,0 +1,104 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+`Trainer(limit_val_batches=1.0)` was configured so 100% of the batches will be used..
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/src/s09_recall_experiments.py:165: DeprecationWarning: deepforest.evaluate() is deprecated and will be removed in a future version. Please use trainer.validate() instead to get evaluation statistics during training.
+  ev = m.evaluate(str(test_csv), iou_threshold=IOU, root_dir=str(test_dir))
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+checkpoint: treedetect_best_recall.ckpt
+NE inventory GT boxes: 2211
+
+[0] baseline — DeepForest per-tile evaluate() (integrity gate)
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 127/127 0:00:48 • 0:00:00 2.65it/s 
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+  evaluate P=0.3997 R=0.3856  (committed 0.3997/0.3856)
+  integrity OK — committed baseline reproduced.
+
+[0b] baseline — whole-AOI predict_tile (experiment anchor)
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 179/179 0:01:04 • 0:00:00 2.70it/s 
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+2832 predictions in overlapping windows, applying non-max suppression
+2162 predictions kept after non-max suppression
+  baseline_predict_tile        P=0.315 R=0.308 F1=0.312 pred=2162
+
+[A] score threshold sweep (default patch 40m / overlap 0.10)
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 179/179 0:01:11 • 0:00:00 2.52it/s 
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+5075 predictions in overlapping windows, applying non-max suppression
+3865 predictions kept after non-max suppression
+  A_thresh_0.05                P=0.202 R=0.353 F1=0.257 pred=3865
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 179/179 0:01:08 • 0:00:00 2.57it/s 
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+4267 predictions in overlapping windows, applying non-max suppression
+3194 predictions kept after non-max suppression
+  A_thresh_0.10                P=0.244 R=0.352 F1=0.288 pred=3194
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 179/179 0:00:52 • 0:00:00 4.08it/s 
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+3979 predictions in overlapping windows, applying non-max suppression
+2959 predictions kept after non-max suppression
+  A_thresh_0.15                P=0.261 R=0.349 F1=0.299 pred=2959
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 179/179 0:00:42 • 0:00:00 4.29it/s 
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+3688 predictions in overlapping windows, applying non-max suppression
+2756 predictions kept after non-max suppression
+  A_thresh_0.20                P=0.272 R=0.340 F1=0.302 pred=2756
+  A_thresh_0.30                P=0.315 R=0.308 F1=0.312 pred=2162  (= baseline)
+
+[B] tiling sweep (default threshold 0.30)
+  B_overlap_0.10               P=0.315 R=0.308 F1=0.312 pred=2162  (= baseline)
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 250/250 0:00:57 • 0:00:00 4.44it/s 
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+4034 predictions in overlapping windows, applying non-max suppression
+2308 predictions kept after non-max suppression
+  B_overlap_0.25               P=0.315 R=0.328 F1=0.321 pred=2308
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 388/388 0:01:27 • 0:00:00 4.57it/s 
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+6196 predictions in overlapping windows, applying non-max suppression
+2452 predictions kept after non-max suppression
+  B_overlap_0.40               P=0.297 R=0.330 F1=0.313 pred=2452
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 322/322 0:01:10 • 0:00:00 4.68it/s 
+3396 predictions in overlapping windows, applying non-max suppression
+2720 predictions kept after non-max suppression
+  B_patch_30m                  P=0.202 R=0.248 F1=0.223 pred=2720
+
+[C] resolution matching (resample test clip, default threshold/overlap)
+  resampling -> 7.5 cm/px (test_clip_7.5cm.tif) ...
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 179/179 0:00:39 • 0:00:00 4.55it/s 
+1870 predictions in overlapping windows, applying non-max suppression
+1539 predictions kept after non-max suppression
+  C_resolution_7.5cm           P=0.328 R=0.228 F1=0.269 pred=1539
+  resampling -> 10.0 cm/px (test_clip_10cm.tif) ...
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 179/179 0:00:38 • 0:00:00 4.72it/s 
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+1398 predictions in overlapping windows, applying non-max suppression
+1178 predictions kept after non-max suppression
+  C_resolution_10cm            P=0.326 R=0.174 F1=0.227 pred=1178
+
+[combined] best-F1 of A (threshold) + B (tiling) + C (resolution)
+  picked: threshold=0.3  overlap=0.25  patch=40.0m  resolution=7.5cm
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 250/250 0:00:54 • 0:00:00 4.68it/s 
+2682 predictions in overlapping windows, applying non-max suppression
+1671 predictions kept after non-max suppression
+  combined_best                P=0.307 R=0.232 F1=0.264 pred=1671
+
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/recall_exp/recall_comparison.csv
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/recall_exp/recall_vs_threshold.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/recall_exp/recall_by_config.png
+
+========================= SUMMARY =========================
+committed baseline (evaluate, per-tile) : P=0.400 R=0.386  [integrity OK]
+predict_tile baseline (whole-AOI anchor): P=0.315 R=0.308 F1=0.312 pred=2162
+  best threshold(A): A_thresh_0.05        R=0.353 (+0.045) P=0.202 pred=3865
+  best tiling(B)  : B_overlap_0.40       R=0.330 (+0.021) P=0.297 pred=2452
+  best resolution(C): C_resolution_7.5cm   R=0.228 (-0.080) P=0.328 pred=1539
+  best combined   : combined_best        R=0.232 (-0.076) P=0.307 pred=1671
+
+==> biggest recall lever: threshold (+0.045 recall, precision 0.202 vs 0.315)
+NOTE: lowered precision is partly the INVENTORY-COVERAGE GAP — the ortho
+contains real trees absent from the inventory, so genuine detections over
+those crowns are scored as false positives. Precision here is a LOWER bound.
+===========================================================
+============================

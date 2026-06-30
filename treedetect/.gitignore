@@ -13,6 +13,8 @@ outputs/*/detection_boxes.geojson
 *.pt
 # species probe crop cache (regenerable from the ortho; commit metrics + figures only)
 outputs/species_probe/crop_cache.npz
+# resampled rasters from the recall experiments (regenerable; large)
+outputs/recall_exp/*.tif
 
 # the source geojsons can be large too; kept out of git (stored in ~/Downloads)
 data/*.geojson
