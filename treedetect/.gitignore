@@ -18,6 +18,8 @@ outputs/recall_exp/*.tif
 # audit individual crop folders (regenerable; many small PNGs) — commit grids + CSVs only
 outputs/audit/fp_crops/
 outputs/audit/fn_crops/
+# raw Apple Numbers working files — the parsed CSV is committed instead
+outputs/audit/*.numbers
 
 # the source geojsons can be large too; kept out of git (stored in ~/Downloads)
 data/*.geojson

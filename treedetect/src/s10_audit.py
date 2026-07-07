@@ -298,47 +298,97 @@ def _write_template(path, fields, rows):
 
 
 # ── 4) re-score helper (idempotent) ─────────────────────────────────────────
-def rescore(cfg):
+MERGE_HINTS = ("merg", "multiple", "crown", "two", "several", "cluster")
+
+
+def _resolve_fp_csv(cfg, override):
+    """Which filled FP file to read: explicit --fp-csv > fp_audit_completed.csv > fp_audit.csv."""
+    ad = C.p(cfg, cfg["outputs_dir"]) / "audit"
+    if override:
+        return Path(override)
+    completed = ad / "fp_audit_completed.csv"
+    return completed if completed.exists() else ad / "fp_audit.csv"
+
+
+def rescore(cfg, fp_csv_override=None):
     preds, gt, pg, gg, info = analyze(cfg)
-    fp_csv = C.p(cfg, cfg["outputs_dir"]) / "audit" / "fp_audit.csv"
+    fp_csv = _resolve_fp_csv(cfg, fp_csv_override)
     if not fp_csv.exists():
-        print(f"no {fp_csv} — run the build step first."); return
+        print(f"no {fp_csv} — run the build step first, or pass --fp-csv PATH."); return
+    rows = list(csv.DictReader(open(fp_csv)))
     tagged = {"real_tree": 0, "error": 0, "unsure": 0, "": 0, "other": 0}
-    n = 0
-    with open(fp_csv) as f:
-        for r in csv.DictReader(f):
-            n += 1
-            t = (r.get("my_tag") or "").strip().lower()
-            tagged[t if t in tagged else "other"] += 1
+    merged_real = []      # real_tree rows whose notes describe a merged / multi-crown box
+    examples = {"real_tree": [], "error": [], "unsure": []}
+    for r in rows:
+        t = (r.get("my_tag") or "").strip().lower()
+        tagged[t if t in tagged else "other"] += 1
+        note = (r.get("notes") or "").strip()
+        if t in examples and len(examples[t]) < 4:
+            examples[t].append((r.get("fp_id", "?"), r.get("best_iou", "?"), note))
+        if t == "real_tree" and any(h in note.lower() for h in MERGE_HINTS):
+            merged_real.append((r.get("fp_id", "?"), note))
+
+    n = len(rows)
     n_real = tagged["real_tree"]
     n_labeled = n - tagged[""]
-    tp, n_pred = info["tp"], info["n_pred"]
+    tp, n_pred, n_fp = info["tp"], info["n_pred"], len(info["fp_idx"])
     orig_p = tp / n_pred
     corr_p = (tp + n_real) / n_pred        # credit audited real trees as TP
-    print("\n===== RE-SCORE (inventory-gap corrected precision) =====")
-    print(f"audited FP rows: {n}  (labeled {n_labeled}, blank {tagged['']})")
-    print(f"  tagged real_tree={n_real}  error={tagged['error']}  unsure={tagged['unsure']}")
-    print(f"original precision @IoU0.4 : {orig_p:.4f}  (tp {tp} / {n_pred})")
-    print(f"corrected precision (audit): {corr_p:.4f}  (+{n_real} audited real trees as TP)")
+
+    lines = []
+    def emit(s=""):
+        print(s); lines.append(s)
+
+    emit("\n===== RE-SCORE (inventory-gap corrected precision) =====")
+    emit(f"source: {fp_csv.name}")
+    emit(f"audited FP rows: {n}  (labeled {n_labeled}, blank {tagged['']})")
+    emit(f"  real_tree = {n_real}")
+    emit(f"  error     = {tagged['error']}")
+    emit(f"  unsure    = {tagged['unsure']}")
+    if tagged["other"]:
+        emit(f"  (other/unrecognized tags = {tagged['other']})")
+    emit("")
+    emit(f"original precision  @IoU0.4 : {orig_p:.4f}   (tp {tp} / {n_pred} preds)")
+    emit(f"corrected precision (audit) : {corr_p:.4f}   (+{n_real} audited real trees credited as TP)")
     if n_labeled:
         rate = n_real / n_labeled
-        est_real_all = rate * len(info["fp_idx"])
+        est_real_all = rate * n_fp
         est_p = (tp + est_real_all) / n_pred
-        print(f"\nextrapolated (if the {rate*100:.0f}% real_tree rate holds across all "
-              f"{len(info['fp_idx'])} FPs):")
-        print(f"  est. real trees among all FPs ~ {est_real_all:.0f}  ->  "
-              f"est. corrected precision ~ {est_p:.3f}")
-    print("=========================================================")
+        emit("")
+        emit(f"extrapolated campus-wide (if the {rate*100:.0f}% real_tree rate holds "
+             f"across all {n_fp} FPs):")
+        emit(f"  est. real trees among all FPs ~ {est_real_all:.0f}")
+        emit(f"  est. corrected precision       ~ {est_p:.3f}")
+    emit("")
+    emit(f"merged / multi-crown evidence: {len(merged_real)} of {n_real} real_tree tags "
+         f"have notes describing a box over multiple crowns")
+    for fid, note in merged_real[:8]:
+        emit(f"    #{fid}: {note}")
+    emit("=========================================================")
+
+    # sample rows per tag so the CSV read can be sanity-checked by eye
+    emit("\nsample rows per tag (fp_id, best_iou, note):")
+    for tag in ("real_tree", "error", "unsure"):
+        emit(f"  [{tag}]")
+        for fid, bi, note in examples[tag]:
+            emit(f"    #{fid}  best_iou={bi}  note={note!r}")
+
+    out = C.p(cfg, cfg["outputs_dir"]) / "audit" / "fp_rescore_summary.txt"
+    out.write_text("\n".join(lines) + "\n")
+    print(f"\nwrote {out}")
 
 
 def main():
     ap = argparse.ArgumentParser(description="treedetect manual audit tool")
     ap.add_argument("--rescore", action="store_true",
-                    help="recompute precision from filled fp_audit.csv (run after tagging)")
+                    help="recompute precision from the filled FP audit CSV (run after tagging)")
+    ap.add_argument("--fp-csv", default=None,
+                    help="path to the filled FP audit CSV "
+                         "(default: fp_audit_completed.csv if present, else fp_audit.csv)")
     args = ap.parse_args()
     cfg = C.load_config()
     if args.rescore:
-        rescore(cfg)
+        rescore(cfg, args.fp_csv)
     else:
         build_audit(cfg)
 
