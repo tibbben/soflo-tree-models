@@ -16,6 +16,18 @@ inputs:                          # paths are relative to the data root (above)
 
 crs: "EPSG:32617"            # UTM 17N — everything is already in this, in metres
 
+# ── Clean evaluation region (s11) — exhaustively-labeled honest test set ─────
+# We proved the inventory undercounts trees (~94% of "false positives" are real),
+# so inventory-based eval is unreliable. This carves ONE small square inside the NE
+# test AOI where EVERY tree gets labeled by hand (in QGIS) to serve as a trustworthy
+# ruler. size_m tunes the square; leave bounds null to auto-pick a mixed-land-cover
+# spot, or set [minx,miny,maxx,maxy] in EPSG:32617 (read off QGIS) to place it yourself.
+# IMPORTANT: keep this region's trees OUT of any future training set.
+clean_eval:
+  size_m: 250
+  bounds: null                 # [minx, miny, maxx, maxy] in CRS units; null = auto
+  iou_eval: [0.4, 0.3]         # thresholds for the honest precision/recall report
+
 labels:
   tree_flag_field: point_is_tree   # keep only rows where this == "Yes"
   tree_flag_value: "Yes"

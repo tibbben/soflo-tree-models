@@ -20,6 +20,8 @@ outputs/audit/fp_crops/
 outputs/audit/fn_crops/
 # raw Apple Numbers working files — the parsed CSV is committed instead
 outputs/audit/*.numbers
+# clipped clean-eval raster (large; regenerable from the committed test clip)
+outputs/clean_eval/*.tif
 
 # the source geojsons can be large too; kept out of git (stored in ~/Downloads)
 data/*.geojson
