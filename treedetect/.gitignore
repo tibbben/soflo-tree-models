@@ -15,6 +15,9 @@ outputs/*/detection_boxes.geojson
 outputs/species_probe/crop_cache.npz
 # resampled rasters from the recall experiments (regenerable; large)
 outputs/recall_exp/*.tif
+# audit individual crop folders (regenerable; many small PNGs) — commit grids + CSVs only
+outputs/audit/fp_crops/
+outputs/audit/fn_crops/
 
 # the source geojsons can be large too; kept out of git (stored in ~/Downloads)
 data/*.geojson
