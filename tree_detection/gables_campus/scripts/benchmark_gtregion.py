@@ -31,7 +31,7 @@ det_path = sys.argv[1]
 match_dist = float(sys.argv[2]) if len(sys.argv) > 2 else 3.0
 min_conf = float(sys.argv[3]) if len(sys.argv) > 3 else 0.0   # 0 = keep everything
 
-gt_path = "./download/um_gables_trees.geojson"
+gt_path = "./download/um_gables_trees_gtregion.geojson"
 
 # Force both layers into the survey's metric CRS so distances are in METERS.
 METRIC_CRS = "EPSG:32617"
