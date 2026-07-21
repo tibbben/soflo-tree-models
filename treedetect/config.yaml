@@ -28,6 +28,14 @@ clean_eval:
   bounds: null                 # [minx, miny, maxx, maxy] in CRS units; null = auto
   iou_eval: [0.4, 0.3]         # thresholds for the honest precision/recall report
 
+# ── FP diagnosis (s12) — split audited real-tree false positives into ───────
+# localization failures (inventory HAS the tree, our box just missed it) vs genuine
+# inventory gaps (unrecorded tree). An FP whose center is within dist_thr_m of an
+# inventory point (or overlaps an inventory box) is a localization case.
+fp_diag:
+  dist_thr_m: 3.5              # FP center within this of an inventory point => localization
+  sensitivity_m: [2.0, 3.0, 4.0]
+
 labels:
   tree_flag_field: point_is_tree   # keep only rows where this == "Yes"
   tree_flag_value: "Yes"
