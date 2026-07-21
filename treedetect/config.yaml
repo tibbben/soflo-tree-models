@@ -94,5 +94,35 @@ train:
   early_stop_patience: 8       # stop after N epochs with no val-recall improvement
   val_accuracy_interval: 1     # compute val precision/recall every epoch (needed for early stop)
 
+# ── BCNP first detection run (s14) — separate domain from Gables ─────────────
+# Big Cypress wetland plots. Native ortho GSD is ~1.6 cm/px; the DeepForest base
+# release expects ~10 cm/px, so we RESAMPLE each plot to target_gsd_m before
+# tiling/detection (resolution is a config param — see the Gables downsample
+# experiment: matching train-domain GSD matters). Census points are plot-local
+# metres georeferenced from each plot polygon's SW corner, reprojected to the tif
+# CRS (EPSG:32617). Boxes are sized per-crown from DBH allometry with a fixed
+# fallback (NOT the Gables 7 m box). Each raster is masked to its 100 m plot
+# polygon (census is exhaustive only inside it) plus the alpha band, so nodata /
+# unlabeled margin never becomes a phantom false negative.
+bcnp_detect:
+  data_subdir: bcnp                     # plots + census live under ~/Downloads/bcnp
+  clean_plots: [plot_17_3, plot_1_1, plot_3_1, plot_9_3, plot_12_1, plot_10_3, plot_6_2, plot_18_2]
+  test_plots:  [plot_9_3, plot_12_1]    # held out whole; both contain trees
+  target_gsd_m: 0.10                    # resample plots to ~10 cm/px for detection
+  crown_a_m:   1.2                      # crown_diam_m = clip(a + b*DBH_cm, min, max)
+  crown_b_m:   0.09
+  crown_min_m: 1.5
+  crown_max_m: 6.0
+  fallback_box_m: 3.0                   # used only when DBH is missing
+  patch_size_m: 40.0                    # tile footprint on the ground
+  patch_overlap: 0.10
+  min_boxes_per_tile: 1
+  epochs: 50
+  batch_size: 2
+  early_stop_patience: 8
+  score_thresh: 0.10                    # this first from-base model is low-confidence
+                                        # (raw detections top out ~0.25); 0.30 zeroes it out
+  iou_eval: [0.4, 0.3]
+
 outputs_dir: outputs
 reports_dir: reports

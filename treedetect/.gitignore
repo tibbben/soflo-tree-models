@@ -24,6 +24,9 @@ outputs/audit/*.numbers
 outputs/clean_eval/*.tif
 # BCNP species probe crop cache (regenerable from the ortho; commit counts + figures only)
 outputs/bcnp_species/crop_cache.npz
+# BCNP detection: resampled clips/tiles + checkpoints covered by outputs/*/tiles + *.ckpt;
+# per-plot prediction geojsons are regenerable from the checkpoint (commit metrics + figures)
+outputs/bcnp_detect/predicted_*.geojson
 
 # the source geojsons can be large too; kept out of git (stored in ~/Downloads)
 data/*.geojson
