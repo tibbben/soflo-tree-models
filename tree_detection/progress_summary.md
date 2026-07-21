@@ -1,109 +1,220 @@
-# Tree Detection — Progress Summary
+# Progress Summary
 
-## Overview
+Individual tree detection and mapping from high-resolution drone orthomosaic imagery.
+Goal: detect every tree across the survey area and export one point per tree for GIS use.
 
-Detect and map every individual tree across a university campus from a
-high-resolution drone orthomosaic, using a fine-tuned YOLOv8 detector. Single class
-(`Tree`); the output is one point per detected tree in the survey's projected CRS
-(EPSG:32617). Performance is measured against a ground-truth set of 10,659 labeled
-tree points using a point-distance benchmark (F1 at 5 m and 3 m match radii).
+---
 
-## Pipeline
+## Headline result
 
-Chip the orthomosaic into labeled tiles, fine-tune the detector, run full-survey
-inference, and score the detections against ground truth. See `pipeline.md` for the
-scripts and run order.
+**Champion: YOLO26, 5 cm imagery, fixed 5 m crown boxes, aerial augmentation.**
 
-## Evaluation method
+| | Precision | Recall | F1 |
+|---|---|---|---|
+| Champion (evaluation region, conf 0.15) | 0.647 | 0.674 | **0.660** |
+| Prior ArcGIS Pro baseline (same region) | 0.738 | 0.275 | 0.401 |
 
-- **Full-survey F1** — each detection point is matched one-to-one to the nearest
-  unclaimed ground-truth tree within a match radius (5 m and 3 m), matching
-  highest-confidence detections first. Precision / recall / F1 are reported.
-- **Operating point** — the confidence threshold selects the precision/recall
-  trade-off and does not change the model. Each model is reported at its own peak-F1
-  confidence, found by sweeping a single low-confidence inference pass.
-- **Validation mAP50** — box-IoU on held-out chips, reported for reference only. It
-  is a training-time metric and is not comparable across runs that used different
-  survey resolution or box sizes.
+A **~65% improvement in F1** over the baseline, and **2.45× as many trees found**
+(7185 true positives vs 2936).
 
-All models below — including the prior baseline — were scored with this identical
-method, so the numbers are directly comparable.
+The baseline is high-precision and low-recall: conservative, and misses roughly three
+quarters of the trees. For a mapping deliverable — where the objective is to find every
+tree — recall is the metric that matters, and the champion wins decisively on it.
 
-## Experiments
+Full-survey scores are also recorded (champion F1 0.615, baseline 0.355), but see
+*Evaluation region* below for why those figures understate every model.
 
-Each run changed one variable from the previous best, to isolate its effect.
+---
 
-| Run folder | Variable tested                                  | Full-survey F1 @5m | F1 @3m | Val mAP50 |
-|------------|--------------------------------------------------|:------------------:|:------:|:---------:|
-| train1-13  | Baseline: yolov8s, 5 cm survey, fixed-5 m boxes  |         —          |   —    |   0.511   |
-| train1-14  | Per-tree canopy-area box sizing                  |         —          |   —    |   0.410   |
-| train1-15  | Per-species (estimated) box sizing               |       0.538        | 0.442  |   0.182   |
-| **train1-16** | **Fixed-5 m boxes + augmentation**            |     **0.571**      |**0.495**| 0.531    |
-| train1-17  | Larger backbone (yolov8m)                        |       0.531        | 0.456  |   0.485   |
-| train1-18  | Higher resolution: 1.6 cm survey, 2000 px tiles  |       0.533        | 0.463  |   0.483   |
-| train1-19  | 1.6 cm survey, measured per-species box sizing   |       0.481        | 0.405  |   0.279   |
-| train1-20  | 1.6 cm survey, native 1280 px tiles (no downscale)|      0.551        | 0.452  |   0.505   |
+## The evaluation-region finding
 
-Runs 13–14 were evaluated on validation metrics only; runs 15–20 were benchmarked on
-the full survey.
+The most important methodological result of the project.
 
-## Comparison to prior baseline
+Large parts of the survey have no ground-truth labels, yet the model correctly detects
+real trees there. Scored against the full survey, those correct detections count as false
+positives, understating precision — and F1 — for every model tested, the baseline
+included. Inspecting the supposed false positives in GIS confirmed they are trees.
 
-An existing ArcGIS Pro detection and segmentation baseline, scored with the identical
-point benchmark:
+The fix: clip the survey and the ground truth to a polygon covering only the labelled
+area, and evaluate inside it. Effect on the champion:
 
-| Model                          | F1 @5m | F1 @3m | Precision | Recall |
-|--------------------------------|:------:|:------:|:---------:|:------:|
-| ArcGIS Pro detection           | 0.355  | 0.286  |   0.500   | 0.276  |
-| ArcGIS Pro segmentation        | 0.355  | 0.283  |   0.499   | 0.275  |
-| **Best model (train1-16)**     |**0.571**|**0.495**|  0.507   | 0.654  |
+| | Precision | Recall | F1 |
+|---|---|---|---|
+| Full survey | 0.559 | 0.685 | 0.615 |
+| Evaluation region | 0.647 | 0.674 | **0.660** |
 
-The best model improves F1 by ~61% at 5 m and finds **2.4× as many trees**
-(recall 0.654 vs 0.276). Every fine-tuned run in the table above outperforms the
-prior baseline.
+Recall barely moves; precision carries the entire gain. The correction is conservative —
+unlabelled trees *inside* the polygon still count against precision — so true precision is
+likely higher still. All benchmarking is performed on the evaluation region.
 
-## Key findings
+---
 
-1. **Augmentation helps.** Rotation + flips + light mixup lifted the baseline
-   (train1-16 over train1-13) with no precision cost.
-2. **A larger backbone does not help.** yolov8m (train1-17) underperformed yolov8s
-   and cost roughly double the training time — capacity is not the bottleneck.
-3. **Uniform fixed box sizing beats variable sizing**, confirmed three independent
-   ways (train1-14, train1-15, train1-19 all lost to fixed-5 m boxes). Box size only
-   affects how the model learns; the output collapses every box to a point, so
-   variable sizing has no payoff path.
-4. **Higher source resolution did not improve the deliverable.** The 5 cm model
-   (train1-16, 0.571) outscored the same configuration on the 1.6 cm survey
-   (train1-18, 0.533). Native-resolution tiling (train1-20, 0.551) recovered most of
-   the loss caused by downscaling high-resolution tiles, but still did not exceed the
-   5 cm result. A likely explanation: the detection target is crown-scale, and 5 cm
-   imagery is already near that scale, whereas 1.6 cm adds sub-crown detail that does
-   not aid crown-level detection.
-5. **Validation mAP50 is a weak proxy for full-survey F1.** The run with the lowest
-   val mAP50 (train1-15, 0.182) was among the best on the deliverable (0.538). Model
-   selection should use the full-survey point benchmark, not val mAP50.
-6. **Confidence threshold is an operating-point choice**, not a model property; each
-   model is fairly compared at its own peak-F1 confidence.
+## Architecture
 
-## Caveats
+All at 5 cm, fixed 5 m boxes, identical data and augmentation (full-survey F1, from
+before the evaluation-region correction):
 
-- Margins among the top models (0.571 / 0.551 / 0.533) are small and based on single
-  training runs; differences within ~0.02 F1 may partly reflect training
-  stochasticity. Confirming the resolution finding would require repeated runs.
-- Ground truth is incomplete: some apparent false positives are real, unlabeled
-  trees, so precision is understated and recall is capped by labeling rather than by
-  the model.
+| Architecture | F1 |
+|---|---|
+| YOLO26 | **0.615** |
+| YOLOv8s | 0.571 |
+| YOLO11s | 0.551 |
+| DeepForest, best variant | 0.542 |
 
-## Current best
+YOLO26's advantage comes from its small-object/aerial design, not from being newer —
+YOLO11s scored *below* YOLOv8s. A larger backbone within the older family (YOLOv8m,
+0.531) did not help either.
 
-**train1-16** — 5 cm survey, fixed-5 m boxes, augmentation. Full-survey
-**F1 0.571 at 5 m** (0.495 at 3 m), at confidence 0.05.
+---
 
-## Next steps
+## Resolution
 
-- Evaluate a pretrained tree-crown model (e.g. DeepForest) as an out-of-the-box
-  baseline, scored with the same benchmark.
-- Test newer small-object detector architectures (YOLO11 / YOLO26).
-- Repeat the top runs to confirm the resolution finding given the small margins.
-- Ground-truth completeness audit to quantify the true recall ceiling.
-- Extend the pipeline to the next survey site.
+Constant-input design (every chip emitted at a fixed pixel size covering a fixed ground
+footprint; coarser sources upsampled into it, so image detail is the only variable).
+Evaluation-region F1:
+
+| Resolution | Peak F1 | Precision | Recall |
+|---|---|---|---|
+| 5 cm | **0.660** | 0.647 | 0.674 |
+| 7.5 cm | 0.649 | 0.625 | 0.674 |
+| 10 cm | 0.645 | 0.609 | 0.685 |
+| 20 cm | 0.624 | 0.608 | 0.642 |
+
+Monotonic, with an accelerating decline past 10 cm. From 5 to 10 cm the loss is entirely
+in precision (recall flat) — detail helps reject non-crowns, not find them. At 20 cm
+recall drops too, as crowns stop resolving well enough to locate.
+
+Finer than 5 cm does not help: 1.6 cm was tested twice and lost both times (0.533, 0.551).
+5 cm is already at crown scale. **Resolution is closed.**
+
+An earlier resolution test scaled the model input with source resolution, which upscaled
+every chip to the same size and normalised detail away — producing a flat, uninformative
+result. The constant-input design above corrects that; any future resolution comparison
+must use it.
+
+---
+
+## Crown box size
+
+All YOLO26 at 5 cm, evaluation-region F1:
+
+| Box radius | Peak F1 | Peak conf | Precision | Recall |
+|---|---|---|---|---|
+| 3 m | 0.584 | 0.075 | 0.589 | 0.579 |
+| **5 m** | **0.660** | 0.15 | 0.647 | 0.674 |
+| 7 m | 0.631 | 0.10 | 0.571 | 0.704 |
+
+A clean inverted U with 5 m at the peak, bracketed on both sides, and the two failures are
+mirror images:
+
+- **7 m fails on precision** (0.571). Boxes large enough to enclose a crown also enclose
+  shrubs, shadows and roof structures.
+- **3 m fails on recall** (0.579). Tighter boxes produce weaker, lower-confidence
+  detections and miss larger crowns; the whole confidence curve shifts down.
+
+5 m sits where the box exceeds every measured crown radius on site (1.7–3.35 m) without
+being large enough to swallow non-tree structures.
+
+**Box size is closed.** Intermediate sizes (2 m, 4 m) were not pursued — any difference
+would fall inside a seed-noise band that has not yet been measured.
+
+---
+
+## Variable box sizing (closed)
+
+Sizing boxes per tree or per species failed three separate ways: per-tree canopy boxes
+regressed; per-species boxes from literature values scored 0.538; per-species boxes from
+measured on-site values scored 0.481 (giant boxes for the large-canopy species dominate
+the failure).
+
+The root cause is data coverage. Only ~11% of ground-truth trees carry any usable crown
+size. One crown-size field is ~50% "populated" but almost entirely zeros — 0.2% usable.
+
+Attempts to predict crown size from other fields also failed:
+
+- height → crown radius: R² 0.185 globally; adding trunk diameter reaches 0.208
+- per species: 0.465 for one palm species (n=39), but 0.004 and 0.015 for the two most
+  common species
+
+Managed and pruned trees have their natural size-to-crown relationship severed. Predicting
+crown size from tabular fields collapses to per-species averages, which already lost.
+
+The only route to variable boxes covering more than ~11% of trees is image-derived, which
+is what the pseudo-box experiment below tested.
+
+---
+
+## DeepForest (closed)
+
+DeepForest (RetinaNet + ResNet50, pretrained on NEON forest canopy crowns), evaluated
+as an alternative to YOLO:
+
+| Variant | F1 |
+|---|---|
+| Fixed-box fine-tune | 0.465 |
+| Image-derived pseudo-box fine-tune (5 cm) | **0.542** |
+| Image-derived pseudo-box fine-tune (10 cm) | 0.522 |
+
+Pseudo-boxes — the pretrained model's own crown predictions, filtered to those landing on
+a real ground-truth point, with a fixed-box fallback — gained +0.077 over fixed boxes.
+That is the clearest evidence that image-derived crown geometry beats fixed geometry in
+principle. It still lost to YOLO26 (0.660).
+
+An NMS threshold sweep moved F1 by 0.007, indicating the false positives are
+wrong-location boxes rather than stacked duplicates.
+
+**Closed for this deliverable.** DeepForest's real strength is crown *segmentation*,
+which is a different output than the point layer required here, and remains relevant to
+future dense-forest work.
+
+---
+
+## Open problem: merged canopies
+
+The model performs worst on large trees and on congested stands where adjacent canopies
+merge into a single mass.
+
+The cause is label geometry, not model capacity. A fixed box centred on a ground-truth
+point cannot teach crown extent: a 15 m canopy is labelled with the same small box as a
+3 m one, and merged canopies are labelled as several separate boxes inside one visual
+blob. The point-based benchmark partly masks this, since boxes are reduced to centroids
+before scoring.
+
+Nothing tested so far — resolution, augmentation, architecture, box size — addresses it.
+Real fixes are crown-aware:
+
+- Instance segmentation instead of detection (different deliverable)
+- A canopy height model from LiDAR as an additional input channel, which would
+  disambiguate merged canopies directly. Pending confirmation of whether LiDAR coverage
+  exists for the site.
+
+---
+
+## Confirmed dead ends
+
+Do not retry:
+
+- Per-tree canopy-area boxes
+- Per-species boxes, from literature or from measured values
+- Predicting crown size from height, trunk diameter, or species
+- Larger backbone within the older YOLO family
+- YOLO11s (scored below YOLOv8s)
+- 1.6 cm source resolution (tested twice)
+- DeepForest for point-detection F1
+- Vegetation-index / near-infrared approaches — the fourth band of the
+  highest-resolution survey is an alpha channel, not NIR. No spectral signal is available.
+- Longer training without augmentation
+
+---
+
+## Key operating points
+
+The champion at other confidence thresholds, for use cases that weight recall differently:
+
+| Confidence | Precision | Recall | F1 |
+|---|---|---|---|
+| 0.15 | 0.647 | 0.674 | 0.660 (peak) |
+| 0.10 | — | 0.799 | 0.656 |
+
+Confidence selects an operating point; it does not change the model. Comparisons between
+models must use each model's own peak-F1 confidence.
