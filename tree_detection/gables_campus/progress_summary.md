@@ -65,6 +65,13 @@ YOLO26's advantage comes from its small-object/aerial design, not from being new
 YOLO11s scored *below* YOLOv8s. A larger backbone within the older family (YOLOv8m,
 0.531) did not help either.
 
+YOLOv9e was tested separately (evaluation-region F1, so compare against the champion's
+0.660 rather than the full-survey figures above): it peaked at **0.632** @ conf 0.10,
+below the YOLO26 champion. Its curve is recall-shifted — more detections, higher recall
+(R 0.880 at low confidence), lower precision — but the precision cost outweighs the recall
+gain at the peak. For reference, Yoo et al. (2026) reported YOLOv9e at F1 0.687 on
+60 cm–1 m NAIP imagery; the architecture does not beat YOLO26 on this dataset.
+
 ---
 
 ## Resolution
