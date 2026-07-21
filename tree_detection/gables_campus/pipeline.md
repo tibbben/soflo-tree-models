@@ -43,7 +43,7 @@ python -c "from ultralytics import YOLO; YOLO('yolo26s.pt')"
 ## 3. Directory layout
 
 ```
-project_root/
+gables_campus/
 ├── configs/
 │   └── champion_5cm_5m.yaml        # one YAML per experiment — the only file edited per run
 │
@@ -74,8 +74,7 @@ project_root/
 ├── output/                         # detection output (gitignored)
 │
 ├── pipeline.md
-├── progress_summary.md
-└── .gitignore
+└── progress_summary.md
 ```
 
 `.gitignore` excludes `download/`, `yolo_dataset/`, `runs/`, `output/`, `__pycache__/`,
