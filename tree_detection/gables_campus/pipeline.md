@@ -43,7 +43,7 @@ python -c "from ultralytics import YOLO; YOLO('yolo26s.pt')"
 ## 3. Directory layout
 
 This is the layout inside the project folder (`tree_detection/gables_campus/` in the
-repository). The wider repository structure is described in the top-level README.
+repository). 
 
 ```
 gables_campus/
