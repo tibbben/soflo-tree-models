@@ -124,5 +124,38 @@ bcnp_detect:
                                         # (raw detections top out ~0.25); 0.30 zeroes it out
   iou_eval: [0.4, 0.3]
 
+# ── BCNP point-based peak-finding detection (s15) — Ventura-style heatmap ────
+# Ground truth is POINTS, so we supervise on a Gaussian confidence heatmap and
+# match by DISTANCE, not IoU (no box detector). Tiles are cut at NATIVE resolution
+# (~1.6 cm/px), 320x320 @ 50% overlap per the USC NAIP paper. A light resnet18
+# U-Net regresses the heatmap; trees = local peaks (NMS by min-distance). Frugal
+# for an 18 GB Mac: lazy windowed reads, tiles cached to disk (gitignored), never
+# whole tifs in RAM; train tiles capped/plot to keep the run tractable.
+bcnp_peak:
+  data_subdir: bcnp
+  clean_plots: [plot_17_3, plot_1_1, plot_3_1, plot_9_3, plot_12_1, plot_10_3, plot_6_2, plot_18_2]
+  test_plots:  [plot_9_3, plot_12_1]
+  tile_px: 320
+  overlap: 0.5                          # stride = tile_px*(1-overlap) = 160
+  sigma_px: 8                           # Gaussian target sigma (native px); tunable
+  min_valid_frac: 0.6                   # tile must be >=60% inside polygon & non-nodata
+  max_train_tiles_per_plot: 500         # frugality cap (test uncapped for honest eval)
+  min_trees_per_tile: 1
+  loss: focal                           # focal (CenterNet penalty-reduced) | wmse
+  pos_weight: 20.0                      # used only when loss=wmse
+  backbone: resnet18
+  batch_size: 4
+  num_workers: 0                        # 0 = load in main process: safest + most frugal
+                                        # on an 18 GB Mac (no spawn workers duplicating data)
+  lr: 0.001
+  epochs: 50
+  early_stop_patience: 8
+  peak_min_dist_m: 0.8                  # NMS min separation between predicted peaks
+  eval_conf: auto                       # headline threshold; "auto" = best-F1 from the
+                                        # sweep (the model's confidence scale is unknown
+                                        # a priori), or set a fixed number
+  conf_sweep: [0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+  match_radii_m: [1.0, 2.0]            # distance tolerances for P/R/F1
+
 outputs_dir: outputs
 reports_dir: reports
