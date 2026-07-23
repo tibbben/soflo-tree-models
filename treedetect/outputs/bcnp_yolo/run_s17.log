@@ -1,0 +1,47 @@
+===== STAGE 1 — census size distributions (ALIVE, test plots) =====
+  plot_9_3: alive=2576  area=1.00 ha  stems/ha=2576
+    DBH   n= 2576 (NA 0)  q25/50/75/90 = 14.3/19.8/24.7/30.5 cm
+    TOTHT n=  194 (NA 2382, 8% coverage)  q25/50/75/90 = 2.0/3.3/4.1/4.6 m
+  plot_12_1: alive=1538  area=1.00 ha  stems/ha=1538
+    DBH   n= 1538 (NA 0)  q25/50/75/90 = 10.8/27.0/35.0/35.0 cm
+    TOTHT n=  520 (NA 1018, 34% coverage)  q25/50/75/90 = 1.8/2.9/4.0/4.7 m
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_yolo/size_distributions.png
+[pred] running s16 model inference (no training): best.pt, gsd 5cm
+   plot_9_3: 10800 raw detections (conf>=0.02)
+   plot_12_1: 10800 raw detections (conf>=0.02)
+===== STAGE 2 — re-score s16 predictions (conf 0.02, 8184 preds) vs size subsets =====
+subset      target   pred |    r  MOD_P  MOD_R MOD_F1  RND_R  edgeR
+-------------------------------------------------------------------
+all_alive     4114   8184 |  1.0  0.083  0.165  0.110  0.143 +0.021
+all_alive     4114   8184 |  1.5  0.094  0.188  0.126  0.188 -0.000
+DBH>p50       2040   8184 |  1.0  0.042  0.170  0.068  0.148 +0.022
+DBH>p50       2040   8184 |  1.5  0.048  0.194  0.077  0.197 -0.003
+DBH>p75       1019   8184 |  1.0  0.022  0.180  0.040  0.155 +0.025
+DBH>p75       1019   8184 |  1.5  0.025  0.200  0.044  0.204 -0.003
+DBH>p90        133   8184 |  1.0  0.003  0.173  0.006  0.138 +0.035
+DBH>p90        133   8184 |  1.5  0.003  0.180  0.006  0.195 -0.014
+TOTHT>p50      347   8184 |  1.0  0.009  0.216  0.018  0.195 +0.021
+TOTHT>p50      347   8184 |  1.5  0.011  0.256  0.021  0.256 +0.000
+TOTHT>p75      178   8184 |  1.0  0.005  0.213  0.009  0.215 -0.001
+TOTHT>p75      178   8184 |  1.5  0.006  0.264  0.011  0.277 -0.013
+TOTHT>p90       59   8184 |  1.0  0.002  0.220  0.003  0.278 -0.057
+TOTHT>p90       59   8184 |  1.5  0.002  0.322  0.005  0.337 -0.015
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_yolo/size_eval.csv
+  predicted count vs target count (over-prediction ratio):
+     conf  n_pred |  all_alive    DBH>p50    DBH>p75    DBH>p90  TOTHT>p50  TOTHT>p75  TOTHT>p90
+     0.02    8184 |       2.0x       4.0x       8.0x      61.5x      23.6x      46.0x     138.7x
+     0.03    6797 |       1.7x       3.3x       6.7x      51.1x      19.6x      38.2x     115.2x
+     0.05     852 |       0.2x       0.4x       0.8x       6.4x       2.5x       4.8x      14.4x
+    (target counts: all_alive=4114, DBH>p50=2040, DBH>p75=1019, DBH>p90=133, TOTHT>p50=347, TOTHT>p75=178, TOTHT>p90=59)
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_yolo/recall_vs_size.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_yolo/overlay_bigtrees_plot_9_3.png
+========================= VERDICT =========================
+Recall & edge-over-random at 1.0 m as we keep only larger trees:
+  all_alive: recall  16.5%  edge  +2.1 pts  (target 4114)
+  DBH>p50  : recall  17.0%  edge  +2.2 pts  (target 2040)
+  DBH>p75  : recall  18.0%  edge  +2.5 pts  (target 1019)
+  DBH>p90  : recall  17.3%  edge  +3.5 pts  (target 133)
+==> NO — recall barely moves with size; the model is not preferentially finding even canopy-sized trees, so the ceiling is the model/density, not just visibility.
+peak RAM: 0.7 GB
+NOTE: DBH 100% populated (reliable); TOTHT ~17% (recorded for a minority — read cautiously).
+===========================================================

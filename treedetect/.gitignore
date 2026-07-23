@@ -31,6 +31,8 @@ outputs/bcnp_detect/predicted_*.geojson
 # Downloaded COCO weights (yolo*.pt) are covered by the *.pt rule above.
 outputs/bcnp_yolo/chips/
 outputs/bcnp_yolo/runs/
+# s17 cached model predictions (regenerable from the s16 weights; re-score only)
+outputs/bcnp_yolo/test_raw_predictions.npz
 
 # the source geojsons can be large too; kept out of git (stored in ~/Downloads)
 data/*.geojson
