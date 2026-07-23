@@ -157,5 +157,44 @@ bcnp_peak:
   conf_sweep: [0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
   match_radii_m: [1.0, 2.0]            # distance tolerances for P/R/F1
 
+# ── BCNP YOLO detection (s16) — partner's Gables approach, adapted + honest eval ─
+# Adopts the PORTABLE wins from origin/ahsan's YOLO pipeline (constant ground-
+# footprint chips, fixed-size boxes, background negatives, strong aerial aug, long
+# training) but re-tuned for BCNP's smaller/denser wetland crowns and scored with
+# OUR honest protocol (distance match at TIGHT radii + a random-scatter floor),
+# NOT their lenient 5 m radius. Frugal for an 18 GB Mac: lazy windowed reads, chips
+# cached to disk (gitignored), cache=False (no images in RAM), batch 4, workers 2.
+# Split by PLOT; test = plot_9_3 + plot_12_1 (same as s15, so it is comparable).
+bcnp_yolo:
+  data_subdir: bcnp
+  train_plots: [plot_17_3, plot_1_1, plot_3_1, plot_10_3, plot_18_2]  # YOLO train
+  val_plot:    plot_6_2            # YOLO val + hyperparameter selection (never test)
+  test_plots:  [plot_9_3, plot_12_1]                                   # honest held-out
+  model: yolo26s.pt               # partner's champion; falls back to yolov8s.pt
+  out_size: 640                   # every chip emitted at this px, any source GSD
+  imgsz: 640                      # train/detect input (modest for 18 GB RAM)
+  overlap_frac: 0.5               # tile overlap fraction (stride = ground_m*(1-this))
+  bg_ratio: 3                     # keep 1 background (no-tree) chip per N tree chips
+  # constant-input resolution sweep: ground_m = gsd*out_size, so gsd is the variable
+  gsd_sweep_m: [0.03, 0.05]       # BCNP crowns are smaller than Gables -> test finer
+  sweep_box_radius_m: 2.0         # fixed box while sweeping GSD
+  box_sweep_radius_m: [1.5, 2.0, 2.5, 3.0]  # inverted-U box sweep at the best GSD
+  select_radius_m: 1.5            # match radius used to PICK the best sweep config
+  # training
+  batch: 4                        # raise to 8 only if RAM allows
+  workers: 2
+  amp: false                      # AMP can be unstable on MPS
+  cache: false                    # never cache images in RAM
+  sweep_epochs: 15                # enough to RANK configs (COCO-pretrained backbone)
+  sweep_patience: 6
+  final_epochs: 120               # patience usually stops well before this
+  final_patience: 40
+  aug: {degrees: 180.0, flipud: 0.5, fliplr: 0.5, scale: 0.6, mixup: 0.1}
+  # honest eval
+  peak_min_dist_m: 0.8            # global NMS on detections before matching
+  match_radii_m: [1.0, 1.5]       # TIGHT radii (not their 5 m)
+  eval_conf: auto                 # headline threshold = best-F1 from the sweep
+  conf_sweep: [0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+
 outputs_dir: outputs
 reports_dir: reports

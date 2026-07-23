@@ -27,6 +27,10 @@ outputs/bcnp_species/crop_cache.npz
 # BCNP detection: resampled clips/tiles + checkpoints covered by outputs/*/tiles + *.ckpt;
 # per-plot prediction geojsons are regenerable from the checkpoint (commit metrics + figures)
 outputs/bcnp_detect/predicted_*.geojson
+# BCNP YOLO (s16): cached chips + ultralytics run dirs (weights/plots); regenerable.
+# Downloaded COCO weights (yolo*.pt) are covered by the *.pt rule above.
+outputs/bcnp_yolo/chips/
+outputs/bcnp_yolo/runs/
 
 # the source geojsons can be large too; kept out of git (stored in ~/Downloads)
 data/*.geojson
