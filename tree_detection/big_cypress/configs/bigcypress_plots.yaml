@@ -1,0 +1,23 @@
+# Big Cypress / Raccoon Point — exploratory detection on the plot clips.
+#
+# No ground truth exists for this site yet (the plot census points do not align with
+# the imagery), so there is NO benchmarking step and no way to tune these values
+# against a metric. The geometry below is deliberately inherited from the campus
+# champion so that crowns are presented to the model at the same apparent pixel scale
+# it was trained at — the best available transfer, not a tuned setting.
+#
+# ground_m / out_size are the levers to try if detections look badly scaled:
+#   crowns look too SMALL in the chip -> lower ground_m (e.g. 20.0) to zoom in
+#   crowns look too LARGE in the chip -> raise ground_m (e.g. 50.0) to zoom out
+name: bigcypress_plots
+
+data:
+  plot_dir: ./download/ortho_clipped   # directory of per-plot .tif clips
+  out_size: 640          # every chip is emitted at this pixel size
+  ground_m: 32.0         # every chip covers this much ground (matches campus training)
+  radius_m: 5.0          # reference crown radius, for the printed scale summary only
+  overlap_m: 5.0         # tile overlap in metres, resolution-independent
+
+detect:
+  imgsz: 1280
+  nms_iou: 0.5
