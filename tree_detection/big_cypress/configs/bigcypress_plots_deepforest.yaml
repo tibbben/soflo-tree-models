@@ -1,0 +1,24 @@
+# Big Cypress / Raccoon Point — DeepForest release-model detection.
+#
+# Geometry deliberately DIFFERS from the YOLO config. The DeepForest release model was
+# pretrained on NEON RGB at ~10cm GSD in 400x400px patches, so chips are cut to match
+# that exactly: 400px over 40m of ground = 10cm effective resolution.
+#
+# This matters more than it did on campus. There, a resolution mismatch was partly
+# absorbed by fine-tuning; here the release weights are used as-is, so nothing corrects
+# a scale mismatch and crowns must be presented at the pixel size the model expects.
+#
+# No ground truth exists for this site, so none of these values are tuned against a
+# metric — they are matched to the model's documented training setup instead.
+name: bigcypress_plots_deepforest
+
+data:
+  plot_dir: ./download/ortho_clipped   # directory of per-plot .tif clips
+  out_size: 400          # matches DeepForest's 400x400 training patches
+  ground_m: 40.0         # 400px over 40m = 0.10 m/px, DeepForest's native GSD
+  radius_m: 5.0          # reference crown radius, for the printed scale summary only
+  overlap_m: 5.0         # tile overlap in metres, resolution-independent
+
+detect:
+  imgsz: 400             # unused by DeepForest (kept so the config shape matches)
+  nms_iou: 0.5           # cross-tile NMS; lowering this is untested future work

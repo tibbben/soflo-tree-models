@@ -123,7 +123,7 @@ for pi, plot_path in enumerate(plot_files, start=1):
 
                 tile = src.read([1, 2, 3], window=window,
                                 out_shape=(3, OUT_SIZE, OUT_SIZE),
-                                resampling=Resampling.bilinear)
+                                resampling=Resampling.average)
                 tile = to_uint8(tile, dtype_name)
 
                 if np.mean(tile) < 5:

@@ -119,7 +119,7 @@ for pi, plot_path in enumerate(plot_files, start=1):
                 # read the first three bands only; a 4th band is alpha, not NIR
                 tile = src.read([1, 2, 3], window=window,
                                 out_shape=(3, OUT_SIZE, OUT_SIZE),
-                                resampling=Resampling.bilinear)
+                                resampling=Resampling.average)
                 tile = to_uint8(tile, dtype_name)
 
                 # skip near-empty tiles (nodata / outside the clip footprint)
