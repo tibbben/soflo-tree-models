@@ -1,13 +1,12 @@
 """
-chip_data_cfg.py — config-driven chipper. Replaces chip_data.py,
-chip_data_native.py, chip_data_7m.py, chip_data_3m.py.
+chip_data.py — config-driven chipper: tiles a survey into labelled chips for training.
 
 Emits constant-size chips covering a constant ground footprint at any source
-resolution, so crowns are always the same pixel size and the ONLY variable
-between runs is whatever the config changes.
+resolution, so crowns are always the same pixel size and the ONLY variable between
+runs is whatever the config changes.
 
 Run from the project root:
-    python scripts/chip_data_cfg.py ./configs/champion_5cm_5m.yaml
+    python scripts/chip_data.py ./configs/champion_5cm_5m.yaml
 """
 
 import sys
@@ -26,7 +25,7 @@ from config import load, summary
 random.seed(42)
 
 if len(sys.argv) < 2:
-    sys.exit("Usage: python scripts/chip_data_cfg.py <config.yaml>")
+    sys.exit("Usage: python scripts/chip_data.py <config.yaml>")
 cfg = load(sys.argv[1])
 summary(cfg, "chip")
 
@@ -58,6 +57,7 @@ box_count = 0
 
 
 def offsets(total, size, step):
+    # tile start positions, with a final offset flush to the raster edge
     offs = list(range(0, total - size, step))
     if not offs or offs[-1] != total - size:
         offs.append(total - size)
@@ -82,12 +82,17 @@ with rasterio.open(d["survey"]) as src:
         for col_off in offsets(src.width, src_chip_px, step):
             window = Window(col_off, row_off, src_chip_px, src_chip_px)
 
-            # read and resample to the constant output size — a coarser source
-            # gets upsampled here, which is exactly the detail difference tested
+            # Read and resample to the constant output size. The finest survey is the
+            # 5cm one, where a 32m window is exactly 640 source px and this is a no-op;
+            # coarser surveys read fewer source px and get UPSAMPLED here, which is
+            # exactly the detail difference the resolution experiments tested.
+            # Bilinear is the right choice for upsampling. (Downsampling would want
+            # area-averaging instead, to avoid aliasing.)
             chip = src.read([1, 2, 3], window=window,
                             out_shape=(3, OUT_SIZE, OUT_SIZE),
                             resampling=Resampling.bilinear)
 
+            # skip near-empty tiles (nodata / outside the survey footprint)
             if np.mean(chip) < 5:
                 continue
 
@@ -100,6 +105,7 @@ with rasterio.open(d["survey"]) as src:
             chip_trees = trees.cx[left:right, bottom:top]
             has_trees = len(chip_trees) > 0
 
+            # keep a limited number of tree-free chips as negative examples
             if not has_trees:
                 if tree_chip_count > 0 and bg_count < tree_chip_count // BG_RATIO:
                     if random.random() >= 0.3:
@@ -115,11 +121,13 @@ with rasterio.open(d["survey"]) as src:
                     px = (tree.geometry.x - left) / GROUND_M * OUT_SIZE
                     py = (top - tree.geometry.y) / GROUND_M * OUT_SIZE
 
+                    # fixed crown box, clipped to the chip edges
                     xmin = max(0, px - crown_radius_out_px)
                     ymin = max(0, py - crown_radius_out_px)
                     xmax = min(OUT_SIZE, px + crown_radius_out_px)
                     ymax = min(OUT_SIZE, py + crown_radius_out_px)
 
+                    # YOLO format: class, normalised centre x/y, normalised w/h
                     cx = (xmin + xmax) / 2 / OUT_SIZE
                     cy = (ymin + ymax) / 2 / OUT_SIZE
                     w = (xmax - xmin) / OUT_SIZE

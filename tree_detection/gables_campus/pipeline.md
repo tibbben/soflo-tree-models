@@ -26,10 +26,23 @@ the scripts themselves do not change between experiments.
 
 ## 2. Requirements
 
-- Python 3.10
-- `ultralytics` (a version that recognises the YOLO26 weight strings)
-- `torch` with CUDA support matching the target GPU
-- `rasterio`, `geopandas`, `shapely`, `numpy`, `pillow`, `scipy`, `pyyaml`, `torchvision`
+```bash
+conda create -n treedetection python=3.10 -y
+conda activate treedetection
+pip install torch==2.7.0 torchvision --index-url https://download.pytorch.org/whl/cu126
+pip install "ultralytics>=8.4.84" rasterio geopandas shapely pyyaml scipy pillow
+```
+
+Two things matter here. Install torch **first** from the CUDA index — letting a later
+resolver pull it can produce a CPU build. And the ultralytics version must be recent
+enough to recognise the YOLO26 weight strings; earlier releases will fail on the model
+name.
+
+Verify:
+
+```bash
+python -c "import torch; print('cuda:', torch.cuda.is_available())"
+```
 
 Model weights are downloaded on first use. On clusters where compute nodes have no
 outbound network access, pre-fetch them from a login node:
@@ -63,6 +76,7 @@ gables_campus/
 │   └── crop_to_region.py           # utility: clip a survey to the evaluation polygon
 │
 ├── best_results.qgz                # QGIS project visualising the champion full-survey map
+├── README.md
 ├── pipeline.md
 ├── progress_summary.md
 │
@@ -74,7 +88,7 @@ gables_campus/
 │   │   └── umgables_2025_drone_survey_5cm_gtregion.tif   # clipped to evaluation polygon
 │   ├── um_gables_trees.geojson                           # tree points, full survey (ground truth)
 │   ├── um_gables_trees_gtregion.geojson                  # ground truth clipped to polygon
-│   ├── gt_region.geojson                                 # the evaluation polygon
+│   ├── gt_region.geojson                                 # the evaluation polygon (TRACKED)
 │   ├── um_gables_tree_detection.geojson                  # prior ArcGIS Pro detection output
 │   └── um_gables_tree_segmentation.geojson               # prior ArcGIS Pro segmentation output
 │
@@ -87,9 +101,10 @@ gables_campus/
 └── output/                         # detection output
 ```
 
-Tracked: `configs/`, `scripts/`, `best_results.qgz`, and the two markdown files.
-Gitignored: `download/`, `yolo_dataset/`, `runs/`, `output/`, `__pycache__/`, and all
-`*.tif` and `*.pt` files.
+Tracked: `configs/`, `scripts/`, `best_results.qgz`, the three markdown files, and
+`download/gt_region.geojson` (a deliberate exception — see §7).
+Gitignored: everything else under `download/`, plus `yolo_dataset/`, `runs/`, `output/`,
+`__pycache__/`, and all `*.tif` and `*.pt` files.
 
 ---
 
@@ -207,6 +222,13 @@ correct detections count as false positives and understate precision for every m
 The fix: a polygon covering only the labelled area. The survey is clipped to it, ground
 truth is clipped to it, and all benchmarking happens inside it. Pixels outside are zeroed,
 and the detector skips near-empty tiles, so unlabelled regions produce no detections.
+
+**The polygon was drawn by hand in QGIS**, by overlaying the ground-truth points on the
+survey and tracing the boundary of the labelled area. It is a judgement call, not a
+derived product — a slightly different boundary would shift the scores slightly. It is
+committed as `download/gt_region.geojson` (an explicit exception to the `download/`
+ignore rule) so that every figure here can be reproduced exactly. Applying this pipeline
+to another site means drawing an equivalent polygon for that site's labelled extent.
 
 Effect on the champion: F1 0.615 → **0.660**, entirely through precision (recall
 unchanged).

@@ -1,9 +1,9 @@
 """
 config.py — single source of truth for a run's parameters.
 
-Big Cypress variant. Differs from the campus version in one way: the input is a
+Big Cypress variant. Differs from the campus version in two ways: the input is a
 DIRECTORY of plot clips rather than a single survey raster, and there is no
-evaluation-region crop (no ground truth exists for this site yet).
+evaluation-region crop (no usable ground truth exists for this site yet).
 
 Usage from another script:
     from config import load, summary
@@ -23,8 +23,8 @@ def load(path):
     # tile overlap defaults to the crown radius, matching the campus pipeline
     d.setdefault("overlap_m", d["radius_m"])
 
-    # the crown box in OUTPUT-chip pixels — constant at any source resolution.
-    # Not used for detection (the model predicts its own boxes), but kept so the
+    # The crown box in OUTPUT-chip pixels. NOT used for detection — the model predicts
+    # its own boxes, and their size is fixed in its trained weights. Kept only so the
     # printed summary shows the apparent crown scale the model was trained at.
     d["crown_radius_out_px"] = int(d["radius_m"] / d["ground_m"] * d["out_size"])
 

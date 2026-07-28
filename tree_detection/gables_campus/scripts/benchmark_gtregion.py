@@ -1,22 +1,31 @@
 """
-benchmark.py — Score detections against the ground-truth tree points.
+benchmark_gtregion.py — Score detections against the ground-truth tree points.
 
 A detection counts as a TRUE POSITIVE if it falls within MATCH_DIST meters of a
 ground-truth tree. Matching is one-to-one: highest-confidence detections are matched
 first, each ground-truth tree can be claimed once, and the nearest eligible tree
 wins. Reports precision / recall / F1.
 
-Works whether the detection file is POINTS or POLYGONS (polygons reduced to centroids).
+Scores against the EVALUATION-REGION ground truth (the tree points clipped to the
+hand-drawn polygon covering the labelled area). Detections must come from a matching
+evaluation-region run — scoring a full-survey detection file against this ground truth
+would count every correctly-detected tree outside the polygon as a false positive.
+
+Works whether the detection file is POINTS or POLYGONS (polygons reduced to centroids),
+so alternative detectors can be scored on the same footing.
 
 Run from the project root:
-    python scripts/benchmark.py <detections.geojson> [match_dist_m] [min_conf]
+    python scripts/benchmark_gtregion.py <detections.geojson> [match_dist_m] [min_conf]
 
-    detections : e.g. ./output/tree_detections.geojson
-    match_dist : match radius in meters (default 3.0)
+    detections : e.g. ./output/tree_detections_gtregion.geojson
+    match_dist : match radius in meters (default 5.0, which is what every recorded
+                 result used)
     min_conf   : OPTIONAL confidence floor (default 0.0 = keep all). Drops detections
-                 below this confidence before scoring, so you can sweep operating
-                 points from a single low-confidence detection file. (Run 16's peak
-                 F1 of 0.571 @ 5m is at min_conf 0.05.)
+                 below this confidence before scoring, so a single low-confidence
+                 detection run supports an entire threshold sweep without re-running
+                 inference. Confidence does not change the model — it selects an
+                 operating point, so models must be compared each at its own peak-F1
+                 confidence.
 """
 
 import sys
@@ -26,11 +35,13 @@ from scipy.spatial import cKDTree
 
 # Args (parameterized by sys.argv, not argparse)
 if len(sys.argv) < 2:
-    sys.exit("Usage: python benchmark.py <detections.geojson> [match_dist_m] [min_conf]")
+    sys.exit("Usage: python scripts/benchmark_gtregion.py <detections.geojson> "
+             "[match_dist_m] [min_conf]")
 det_path = sys.argv[1]
-match_dist = float(sys.argv[2]) if len(sys.argv) > 2 else 3.0
+match_dist = float(sys.argv[2]) if len(sys.argv) > 2 else 5.0
 min_conf = float(sys.argv[3]) if len(sys.argv) > 3 else 0.0   # 0 = keep everything
 
+# ground truth clipped to the evaluation polygon
 gt_path = "./download/um_gables_trees_gtregion.geojson"
 
 # Force both layers into the survey's metric CRS so distances are in METERS.
@@ -38,7 +49,7 @@ METRIC_CRS = "EPSG:32617"
 det = gpd.read_file(det_path).to_crs(METRIC_CRS)
 gt = gpd.read_file(gt_path).to_crs(METRIC_CRS)
 
-# Optional confidence floor — sweep operating points without re-running detect_full.
+# Optional confidence floor — sweep operating points without re-running detection.
 if min_conf > 0.0:
     if "confidence" not in det.columns:
         sys.exit("min_conf was given but the detection file has no 'confidence' column.")

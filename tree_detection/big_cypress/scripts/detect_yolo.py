@@ -2,8 +2,8 @@
 detect_yolo.py — Run the campus-trained YOLO champion across the Big Cypress plot
 clips. One point per detected tree crown, written per plot plus a merged layer.
 
-There is no ground truth for this site yet, so there is NO benchmarking step and no
-evidence-based way to pick a confidence threshold. Detections are produced at a low
+There is no usable ground truth for this site yet, so there is NO benchmarking step and
+no evidence-based way to pick a confidence threshold. Detections are produced at a low
 floor and the 'confidence' attribute is kept on every point, so thresholds can be
 explored visually in QGIS by filtering on that attribute rather than re-running.
 
@@ -12,7 +12,7 @@ and palms on lawn/pavement) at 5cm. Big Cypress is closed-canopy wetland forest.
 are cut to the same GROUND footprint the model was trained at, so crowns appear at a
 similar pixel scale regardless of this survey's resolution — that is the best available
 transfer, but performance is expected to drop and the output should be treated as
-exploratory.
+provisional.
 
 Run from the big_cypress project root:
     python scripts/detect_yolo.py <config.yaml> <weights> [conf]
@@ -69,15 +69,16 @@ def offsets(total, size, step):
 
 
 def to_uint8(arr, dtype_name):
-    # The campus pipeline assumed uint8. Drone orthos are often uint16, so scale
-    # rather than refusing to run. uint8 passes through untouched.
+    # This site's clips are already uint8 and pass through untouched. Other surveys
+    # are often uint16, so scale rather than refusing to run. Note the scaling is
+    # per-tile, which would make brightness inconsistent across tiles on non-uint8
+    # imagery — revisit if a 16-bit survey is ever run through this.
     if dtype_name == "uint8":
         return arr.astype(np.uint8)
     a = arr.astype(np.float32)
     hi = a.max()
     if hi <= 0:
         return np.zeros_like(a, dtype=np.uint8)
-    # 12-bit and 16-bit imagery both scale sensibly off the observed maximum
     return np.clip(a / hi * 255.0, 0, 255).astype(np.uint8)
 
 
@@ -88,6 +89,7 @@ for pi, plot_path in enumerate(plot_files, start=1):
     plot_name = os.path.splitext(os.path.basename(plot_path))[0]
     world_boxes = []
     world_confs = []
+    skipped = 0
 
     with rasterio.open(plot_path) as src:
         raster_crs = src.crs
@@ -111,12 +113,16 @@ for pi, plot_path in enumerate(plot_files, start=1):
               f"{pixel_size:.4f}m/px ({dtype_name}, {src.count} bands) -> "
               f"{total_tiles} tiles of {src_chip_px}px")
 
-        skipped = 0
         for row_off in row_offs:
             for col_off in col_offs:
                 window = Window(col_off, row_off, src_chip_px, src_chip_px)
 
-                # read the first three bands only; a 4th band is alpha, not NIR
+                # Read the first three bands only; the 4th band is alpha, not NIR.
+                # AVERAGE resampling, not bilinear: these windows are DOWNsampled to
+                # out_size (1893 source px -> 640 here), and averaging is the
+                # anti-aliased choice when shrinking. Bilinear samples sparse points
+                # and aliases, manufacturing spurious edge texture across continuous
+                # canopy. The campus chipper uses bilinear because it UPsamples.
                 tile = src.read([1, 2, 3], window=window,
                                 out_shape=(3, OUT_SIZE, OUT_SIZE),
                                 resampling=Resampling.average)

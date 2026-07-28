@@ -1,12 +1,13 @@
 """
-train_yolo_cfg.py — config-driven training. Every hyperparameter comes from the
-yaml's `train:` block, passed straight to model.train(**train). Nothing is added
-implicitly, so anything not listed keeps the ultralytics default.
+train_yolo.py — config-driven training. Every hyperparameter comes from the yaml's
+`train:` block, passed straight to model.train(**train). Nothing is added implicitly,
+so anything not listed keeps the framework default.
 
-The config file is copied into the run folder as the run's provenance record.
+The config file is copied into the run folder as the run's provenance record, so every
+run is self-documenting.
 
-Run from the project root ON A GPU NODE (via bsub):
-    python scripts/train_yolo_cfg.py ./configs/champion_5cm_5m.yaml
+Run from the project root ON A GPU (submit as a batch job on a scheduled cluster):
+    python scripts/train_yolo.py ./configs/champion_5cm_5m.yaml
 """
 
 import sys
@@ -17,10 +18,10 @@ sys.path.insert(0, "./scripts")
 from config import load, summary
 
 # the __main__ guard is required on Windows (multiprocessing dataloader),
-# harmless on Linux/HPC — keep for portability
+# harmless on Linux — keep for portability
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        sys.exit("Usage: python scripts/train_yolo_cfg.py <config.yaml>")
+        sys.exit("Usage: python scripts/train_yolo.py <config.yaml>")
     cfg_path = sys.argv[1]
     cfg = load(cfg_path)
     summary(cfg, "train")

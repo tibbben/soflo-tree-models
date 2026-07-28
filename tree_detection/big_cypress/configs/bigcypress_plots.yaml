@@ -1,4 +1,4 @@
-# Big Cypress / Raccoon Point — exploratory detection on the plot clips.
+# Big Cypress — exploratory detection on the plot clips.
 #
 # No ground truth exists for this site yet (the plot census points do not align with
 # the imagery), so there is NO benchmarking step and no way to tune these values

@@ -2,17 +2,18 @@
 detect_full.py — config-driven detection across the FULL survey. This produces the
 actual deliverable: a tree point layer covering the entire site.
 
-Companion to detect.py, which runs the same model over the evaluation-region crop for
-benchmarking. The two scripts differ in exactly two things: which raster they read
-(data.survey vs data.survey_gtregion) and which file they write. All tiling geometry
-comes from the shared config, so neither can drift from the chipper or from each other.
+Companion to detect_gtregion.py, which runs the same model over the evaluation-region
+crop for benchmarking. The two scripts differ in exactly two things: which raster they
+read (data.survey vs data.survey_gtregion) and which file they write. All tiling
+geometry comes from the shared config, so neither can drift from the chipper or from
+each other.
 
-Use detect.py for any number you intend to compare against a recorded result.
+Use detect_gtregion.py for any number you intend to compare against a recorded result.
 Use this script for the map you hand over.
 
 Run from the project root ON A GPU. The full survey is several times as many tiles as
-the evaluation region, so submit this as a batch job rather than an interactive session
-(an interactive session dies with the SSH connection).
+the evaluation region, so submit this as a batch job on a scheduled cluster rather than
+an interactive session (an interactive session dies with the connection).
 
     python scripts/detect_full.py <config.yaml> <weights> [conf]
 
@@ -73,7 +74,7 @@ model = YOLO(weights_path)
 world_boxes = []
 world_confs = []
 
-# THE ONLY GEOMETRY DIFFERENCE FROM detect.py: the full survey, not the crop
+# THE ONLY GEOMETRY DIFFERENCE FROM detect_gtregion.py: the full survey, not the crop
 with rasterio.open(d["survey"]) as src:
     raster_crs = src.crs
     pixel_size = src.res[0]
@@ -98,6 +99,9 @@ with rasterio.open(d["survey"]) as src:
                       f"| {skipped} empty tiles skipped")
 
             window = Window(col_off, row_off, src_chip_px, src_chip_px)
+
+            # mirrors chip_data.py exactly — bilinear, because coarser surveys are
+            # upsampled into the constant output size rather than downsampled
             tile = src.read([1, 2, 3], window=window,
                             out_shape=(3, OUT_SIZE, OUT_SIZE),
                             resampling=Resampling.bilinear)
@@ -107,7 +111,7 @@ with rasterio.open(d["survey"]) as src:
                 skipped += 1
                 continue
 
-            # the detection framework expects BGR channel order
+            # ultralytics expects BGR channel order
             tile_bgr = np.ascontiguousarray(np.transpose(tile, (1, 2, 0))[:, :, ::-1])
             results = model.predict(tile_bgr, imgsz=IMGSZ, conf=conf, verbose=False)
             r = results[0]
