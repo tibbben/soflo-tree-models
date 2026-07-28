@@ -6,6 +6,19 @@ Stage 1 of a two-stage plan (detection now; species classification later).
 
 Everything is in **EPSG:32617 (UTM 17N)**, units in metres.
 
+## Results & campaign write-ups
+
+The headline results and findings live in per-site summaries (read these first):
+
+- **[`gables_campus/README.md`](gables_campus/README.md)** — Gables DeepForest results.
+  Distance-matched **F1 0.573** (5 m, clean-eval region; P 0.674 / R 0.498), the manual
+  FP/FN audit (94/100 false positives were real unrecorded trees; recall miss is loose
+  boxes, not blindness), resolution tuning, and a head-to-head vs Ahsan's YOLO26s (0.66).
+- **[`bcnp/README.md`](bcnp/README.md)** — Big Cypress wetland results (`s13`–`s18`).
+  Three detector families all converge to **F1 ≈ 0.11** and barely beat random scatter;
+  dedicated diagnostics rule out a georeferencing bug (`s18`) and a label-visibility
+  ceiling (`s17`). The site, not the model, is the wall.
+
 ## The key data finding (why labels are built the way they are)
 
 We have three layers for campus:
@@ -38,7 +51,19 @@ See `reports/label_qa.png`.
 | 05 | `s05_evaluate.py` | step 04 | precision / recall on the held-out test AOI |
 | 06 | `s06_predict.py` | step 04 | `outputs/predicted_trees.geojson` for QGIS |
 
+Steps 01–06 above are the Gables detection core. Later steps extend it:
+
+| steps | what | write-up |
+|---|---|---|
+| `s07`–`s08` | species labels + crop-classifier probe (Gables) | — |
+| `s09`–`s12` | recall experiments, manual FP/FN audit, clean-eval region, FP diagnosis | `gables_campus/README.md` |
+| `s19` | Gables distance-matched headline F1 | `gables_campus/README.md` |
+| `s13` | BCNP 3-class species probe | `bcnp/README.md` |
+| `s14`–`s16` | BCNP detection: DeepForest boxes, heatmap peak-finder, YOLO26s | `bcnp/README.md` |
+| `s17`–`s18` | BCNP diagnostics: size-visibility re-score, georeferencing check | `bcnp/README.md` |
+
 Steps 01–02 run anywhere. Steps 03–06 need the orthomosaic and `deepforest`/`torch`.
+The BCNP steps (`s13`–`s18`) need the Big Cypress plots + census under `~/Downloads/bcnp/`.
 
 ## Reproduce / Setup
 
