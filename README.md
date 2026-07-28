@@ -34,29 +34,13 @@ A playground for image segmentation to detect the trees of South Florida.
 
 
 
-Deep learning pipelines that detect individual trees and export one point per tree for GIS
-
-use. Two sites, each with its own subfolder, README, and write-up.
+Deep learning pipelines that detect individual trees and export one point per tree for GIS use. Two sites, each with its own subfolder, README, and write-up.
 
 
 
-\* \[./tree\_detection/gables\_campus](tree\_detection/gables\_campus) — A YOLO
+\* \[./tree\_detection/gables\_campus](tree\_detection/gables\_campus) — A YOLO detection pipeline trained on the Coral Gables campus drone survey against a 10,659-point tree inventory. The champion model reaches F1 0.660 on the evaluation region, compared to 0.401 for the prior ArcGIS Pro baseline on the same ground — roughly a 65% improvement in F1 and 2.45× as many trees found. Includes a reproducible config-driven pipeline, benchmarking, and a record of what was tried.
 
-&#x20; detection pipeline trained on the Coral Gables campus drone survey against a 10,659-point
-
-&#x20; tree inventory. The champion model reaches F1 0.660 on the evaluation region, compared to
-
-&#x20; 0.401 for the prior ArcGIS Pro baseline on the same ground — roughly a 65% improvement in
-
-&#x20; F1 and 2.45× as many trees found. Includes a reproducible config-driven pipeline,
-
-&#x20; benchmarking, and a record of what was tried.
-
-\* \[./tree\_detection/big\_cypress](tree\_detection/big\_cypress) — The campus
-
-&#x20; champion and a forest-pretrained DeepForest model applied to the Big Cypress plot
-
-&#x20; clips. No usable ground truth exists for this site yet, so results are visual only.
+\* \[./tree\_detection/big\_cypress](tree\_detection/big\_cypress) — The campus champion and a forest-pretrained DeepForest model applied to the Big Cypress plot clips. No usable ground truth exists for this site yet, so results are visual only.
 
 
 
@@ -66,11 +50,11 @@ use. Two sites, each with its own subfolder, README, and write-up.
 
 \* \[The root shared Box folder](https://miami.box.com/s/qtijqu7e5g36wircuzts951mk8oqwyj3)
 
-&#x20;  \* \[Running Notes](https://miami.box.com/s/86s4e45lwxvta9lh5ow5mlze72ngh5v9)
+&#x20; \* \[Running Notes](https://miami.box.com/s/86s4e45lwxvta9lh5ow5mlze72ngh5v9)
 
-&#x20;  \* \[The shared Gables Campus folder](https://miami.box.com/s/mq6k0vj8f89h4w91u7pqdocetjpoma2f)
+&#x20; \* \[The shared Gables Campus folder](https://miami.box.com/s/mq6k0vj8f89h4w91u7pqdocetjpoma2f)
 
-&#x20;  \* \[The shared Big Cypress Folder](https://miami.box.com/s/qd4j3x2pf0v2gn9knjz9r9ffnsyku4wx)
+&#x20; \* \[The shared Big Cypress Folder](https://miami.box.com/s/qd4j3x2pf0v2gn9knjz9r9ffnsyku4wx)
 
-&#x20;  \* \[The GDSC metadata spreadsheet](https://miami.box.com/s/cpe136whxprafac9ssvkig74ju4o2x7m)
+&#x20; \* \[The GDSC metadata spreadsheet](https://miami.box.com/s/cpe136whxprafac9ssvkig74ju4o2x7m)
 

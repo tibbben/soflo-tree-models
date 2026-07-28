@@ -39,6 +39,9 @@ python scripts/train_yolo.py ./configs/champion_5cm_5m.yaml
 python scripts/detect_gtregion.py ./configs/champion_5cm_5m.yaml <weights> 0.05
 ```
 
-Input data is not tracked in git — place the download folder from the
+Input data is not tracked in git. `best_results.qgz` loads the detection points (committed)
+over the drone survey, which is not committed — place the download folder from the
 [shared Gables Campus folder](https://miami.box.com/s/mq6k0vj8f89h4w91u7pqdocetjpoma2f)
-as described in `pipeline.md`.
+at `./download/` so the survey sits at
+`./download/umgables_2025/umgables_2025_drone_survey_5cm.tif`. Without it the project
+opens with the tree points rendering and the imagery layer unavailable.

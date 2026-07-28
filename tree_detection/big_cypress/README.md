@@ -50,6 +50,8 @@ Filter, and enter:
 
 The saved `.qgz` projects are this filter applied at different values.
 
-Input data is not tracked in git — place the download folder from the
-[shared Big Cypress folder](https://miami.box.com/s/qd4j3x2pf0v2gn9knjz9r9ffnsyku4wx) as
-described in `pipeline.md`.
+Input data is not tracked in git. The `.qgz` projects load the detection points (committed)
+over the plot clips, which are not committed — place the download folder from the
+[shared Big Cypress folder](https://miami.box.com/s/qd4j3x2pf0v2gn9knjz9r9ffnsyku4wx)
+at `./download/` so the clips sit at `./download/ortho_clipped/plot_*.tif`. Without them
+the projects open with the tree points rendering and the imagery layers unavailable.
