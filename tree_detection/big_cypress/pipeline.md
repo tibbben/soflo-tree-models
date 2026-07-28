@@ -228,9 +228,6 @@ things to each, and each needs its own threshold. Provisional values chosen visu
 
 ## Appendix: known rough edges
 
-- Three plots (`plot_11_2`, `plot_12_3`, `plot_8_3`) produce no detections from either
-  model. Because both fail identically, this is a property of those clips rather than a
-  model or pipeline issue. Not yet investigated.
 - `nms_iou` is 0.5 in both configs, inherited from the campus pipeline and never swept
   there either. Closed canopy is the case where a lower value should help; this is untested.
 - The DeepForest config carries an `imgsz` key for shape consistency with the YOLO config,
