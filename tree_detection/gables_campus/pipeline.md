@@ -87,7 +87,7 @@ gables_campus/
 │   │   ├── umgables_2025_drone_survey_5cm.tif            # 5cm survey (champion input)
 │   │   └── umgables_2025_drone_survey_5cm_gtregion.tif   # clipped to evaluation polygon
 │   ├── um_gables_trees.geojson                           # tree points, full survey (ground truth)
-│   ├── um_gables_trees_gtregion.geojson                  # ground truth clipped to polygon
+│   ├── um_gables_trees_gtregion.geojson                  # ground truth clipped to polygon (TRACKED)
 │   ├── gt_region.geojson                                 # the evaluation polygon (TRACKED)
 │   ├── um_gables_tree_detection.geojson                  # prior ArcGIS Pro detection output
 │   └── um_gables_tree_segmentation.geojson               # prior ArcGIS Pro segmentation output
@@ -101,8 +101,9 @@ gables_campus/
 └── output/                         # detection output
 ```
 
-Tracked: `configs/`, `scripts/`, `best_results.qgz`, the three markdown files, and
-`download/gt_region.geojson` (a deliberate exception — see §7).
+Tracked: `configs/`, `scripts/`, `best_results.qgz`, the three markdown files, and two
+deliberate exceptions under `download/` — `gt_region.geojson` and
+`um_gables_trees_gtregion.geojson` (see §7).
 Gitignored: everything else under `download/`, plus `yolo_dataset/`, `runs/`, `output/`,
 `__pycache__/`, and all `*.tif` and `*.pt` files.
 
@@ -225,10 +226,19 @@ and the detector skips near-empty tiles, so unlabelled regions produce no detect
 
 **The polygon was drawn by hand in QGIS**, by overlaying the ground-truth points on the
 survey and tracing the boundary of the labelled area. It is a judgement call, not a
-derived product — a slightly different boundary would shift the scores slightly. It is
-committed as `download/gt_region.geojson` (an explicit exception to the `download/`
-ignore rule) so that every figure here can be reproduced exactly. Applying this pipeline
-to another site means drawing an equivalent polygon for that site's labelled extent.
+derived product — a slightly different boundary would shift the scores slightly.
+Applying this pipeline to another site means drawing an equivalent polygon for that
+site's labelled extent.
+
+Two files are therefore committed as explicit exceptions to the `download/` ignore rule,
+so that every figure here can be reproduced exactly:
+
+* `download/gt_region.geojson` — the polygon itself. `crop_to_region.py` reads it to
+  produce the cropped survey.
+* `download/um_gables_trees_gtregion.geojson` — the ground-truth points clipped to that
+  polygon, produced in QGIS. `benchmark_gtregion.py` scores against
+  this layer, and no script in this repository regenerates it — hence it is tracked
+  rather than derived at runtime.
 
 Effect on the champion: F1 0.615 → **0.660**, entirely through precision (recall
 unchanged).
