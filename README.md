@@ -14,12 +14,12 @@ A playground for image segmentation to detect the trees of South Florida.
 * `./jupyter/combine_shapefiles.ipynb` combines a set of shapefiles into a single geopackage.
 * `./jupyter/convert_census_to_geojson.ipynb` converts the Big Cypress plot census CSV into a georeferenced GeoJSON point layer, anchoring each tree's local plot coordinates to its plot centre in UTM.
 
-## tree_detection
+## tree_detection_YOLO
 
 Deep learning pipelines that detect individual trees and export one point per tree for GIS use. Two sites, each with its own subfolder, README, and write-up.
 
-* [./tree_detection/gables_campus](tree_detection/gables_campus) — A YOLO detection pipeline trained on the Coral Gables campus drone survey against a 10,659-point tree inventory. The champion model reaches F1 0.660 on the evaluation region, compared to 0.401 for the prior ArcGIS Pro baseline on the same ground — roughly a 65% improvement in F1 and 2.45× as many trees found. Includes a reproducible config-driven pipeline, benchmarking, and a record of what was tried.
-* [./tree_detection/big_cypress](tree_detection/big_cypress) — The campus champion and a forest-pretrained DeepForest model applied to the Big Cypress plot clips. No usable ground truth exists for this site yet, so results are visual only.
+* [./tree_detection_YOLO/gables_campus](tree_detection_YOLO/gables_campus) — A YOLO detection pipeline trained on the Coral Gables campus drone survey against a 10,659-point tree inventory. The champion model reaches F1 0.660 on the evaluation region, compared to 0.401 for the prior ArcGIS Pro baseline on the same ground — roughly a 65% improvement in F1 and 2.45× as many trees found. Includes a reproducible config-driven pipeline, benchmarking, and a record of what was tried.
+* [./tree_detection_YOLO/big_cypress](tree_detection_YOLO/big_cypress) — The campus champion and a forest-pretrained DeepForest model applied to the Big Cypress plot clips. No usable ground truth exists for this site yet, so results are visual only.
 
 ## Resources
 
