@@ -20,6 +20,7 @@ Deep learning pipelines that detect individual trees and export one point per tr
 
 * [./tree_detection_YOLO/gables_campus](tree_detection_YOLO/gables_campus) — A YOLO detection pipeline trained on the Coral Gables campus drone survey against a 10,659-point tree inventory. The champion model reaches F1 0.660 on the evaluation region, compared to 0.401 for the prior ArcGIS Pro baseline on the same ground — roughly a 65% improvement in F1 and 2.45× as many trees found. Includes a reproducible config-driven pipeline, benchmarking, and a record of what was tried.
 * [./tree_detection_YOLO/big_cypress](tree_detection_YOLO/big_cypress) — The campus champion and a forest-pretrained DeepForest model applied to the Big Cypress plot clips. No usable ground truth exists for this site yet, so results are visual only.
+* [./tree_detection_YOLO/ai_reproducibility.md](tree_detection_YOLO/ai_reproducibility.md) — how AI assistance was used in this work, the verification practices that resulted, and the errors those practices caught.
 
 ## Resources
 
