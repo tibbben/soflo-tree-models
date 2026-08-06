@@ -26,6 +26,8 @@ Run from the project root:
                  inference. Confidence does not change the model — it selects an
                  operating point, so models must be compared each at its own peak-F1
                  confidence.
+
+Written by Ahsan and Claude.
 """
 
 import sys

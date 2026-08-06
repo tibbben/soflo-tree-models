@@ -18,7 +18,7 @@ maximising a score.
 Two models, each fed imagery at the resolution it was trained at, downsampled on the fly
 from the 1.69 cm source clips:
 
-| Model | Chip geometry | Effective GSD | Detections @ 0.05 |
+| Model | Tile geometry | Effective GSD | Detections @ 0.05 |
 |---|---|---|---|
 | Campus champion (YOLO26, fine-tuned) | 640 px over 32 m | 5 cm | 69,528 |
 | DeepForest release weights | 400 px over 40 m | 10 cm | 40,197 |
@@ -34,7 +34,7 @@ leafless crown. See `progress_summary.md`.
 |---|---|
 | [pipeline.md](pipeline.md) | How to run both detectors: environments, configs, commands |
 | [progress_summary.md](progress_summary.md) | Data, method, results, findings, and future work |
-| `configs/` | One YAML per model — the two differ in chip geometry, deliberately |
+| `configs/` | One YAML per model — the two differ in tile geometry, deliberately |
 | `scripts/` | Two detectors and a shared config loader |
 | `*.qgz` | QGIS projects, one per model and confidence threshold |
 
@@ -50,8 +50,18 @@ Filter, and enter:
 
 The saved `.qgz` projects are this filter applied at different values.
 
-Input data is not tracked in git. The `.qgz` projects load the detection points (committed)
-over the plot clips, which are not committed — place the download folder from the
-[shared Big Cypress folder](https://miami.box.com/s/qd4j3x2pf0v2gn9knjz9r9ffnsyku4wx)
-at `./download/` so the clips sit at `./download/ortho_clipped/plot_*.tif`. Without them
-the projects open with the tree points rendering and the imagery layers unavailable.
+## Where this was run
+
+Both detectors were run on a laptop — NVIDIA RTX 4060 (8 GB VRAM), 32 GB RAM, Intel Core
+i7-13700HX. Detection is inference only, so 8 GB is comfortable, and the plot clips are
+large enough (~370 MB each, ~18 GB total) that moving them to a cluster costs more time
+than the compute saves. The campus weights used here were trained separately on the
+University of Miami Pegasus HPC cluster (NVIDIA H100, IBM LSF batch scheduler).
+
+## Input data
+
+Not tracked in git. The `.qgz` projects load the detection points (committed) over the
+plot clips, which are not committed — place the download folder from the
+[shared Big Cypress folder](https://miami.box.com/s/qd4j3x2pf0v2gn9knjz9r9ffnsyku4wx) at
+`./download/` so the clips sit at `./download/ortho_clipped/plot_*.tif`. Without them the
+projects open with the tree points rendering and the imagery layers unavailable.

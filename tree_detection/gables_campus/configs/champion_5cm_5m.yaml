@@ -1,20 +1,20 @@
 # Champion: YOLO26, 5cm survey, fixed-5m boxes, augmentation.
-# GT-region F1 0.660 @ conf 0.15 (P 0.647 / R 0.674). Server run train1-2.
+# Evaluation-region F1 0.660 @ conf 0.15 (P 0.647 / R 0.674).
 name: champion_5cm_5m
 
 data:
   survey: ./download/umgables_2025/umgables_2025_drone_survey_5cm.tif
   survey_gtregion: ./download/umgables_2025/umgables_2025_drone_survey_5cm_gtregion.tif
   trees: ./download/um_gables_trees.geojson
-  out_size: 640        # every chip emitted at this size, whatever the source res
-  ground_m: 32.0       # every chip covers this much ground
+  out_size: 640        # every tile emitted at this size, whatever the source res
+  ground_m: 32.0       # every tile covers this much ground
   radius_m: 5.0        # fixed crown box radius for every tree
-  bg_ratio: 3          # keep 1 background chip per N tree chips
+  bg_ratio: 3          # keep 1 background tile per N tree tiles
 
 model: yolo26s.pt
 
 # passed straight through to model.train(**train) — nothing is added implicitly,
-# so anything absent here keeps the ultralytics default (as the champion did)
+# so anything absent here keeps the framework default
 train:
   data: ./yolo_dataset/dataset.yaml
   epochs: 200
@@ -23,7 +23,7 @@ train:
   batch: 16
   device: 0
   amp: true
-  degrees: 180.0
+  degrees: 180.0       # aerial imagery has no canonical orientation
   flipud: 0.5
   fliplr: 0.5
   scale: 0.6

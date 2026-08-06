@@ -5,7 +5,7 @@ actual deliverable: a tree point layer covering the entire site.
 Companion to detect_gtregion.py, which runs the same model over the evaluation-region
 crop for benchmarking. The two scripts differ in exactly two things: which raster they
 read (data.survey vs data.survey_gtregion) and which file they write. All tiling
-geometry comes from the shared config, so neither can drift from the chipper or from
+geometry comes from the shared config, so neither can drift from the tiler or from
 each other.
 
 Use detect_gtregion.py for any number you intend to compare against a recorded result.
@@ -18,6 +18,8 @@ an interactive session (an interactive session dies with the connection).
     python scripts/detect_full.py <config.yaml> <weights> [conf]
 
 Output: ./output/tree_detections_full.geojson (+ .shp)
+
+Written by Ahsan and Claude.
 """
 
 import sys
@@ -78,15 +80,15 @@ world_confs = []
 with rasterio.open(d["survey"]) as src:
     raster_crs = src.crs
     pixel_size = src.res[0]
-    src_chip_px = int(round(GROUND_M / pixel_size))
+    src_tile_px = int(round(GROUND_M / pixel_size))
     src_overlap_px = int(round(OVERLAP_M / pixel_size))
-    step = src_chip_px - src_overlap_px
+    step = src_tile_px - src_overlap_px
 
-    row_offs = offsets(src.height, src_chip_px, step)
-    col_offs = offsets(src.width, src_chip_px, step)
+    row_offs = offsets(src.height, src_tile_px, step)
+    col_offs = offsets(src.width, src_tile_px, step)
     total_tiles = len(row_offs) * len(col_offs)
     print(f"FULL survey {src.width}x{src.height}px @ {pixel_size:.4f}m/px "
-          f"-> {total_tiles} tiles ({src_chip_px}px -> {OUT_SIZE}px) @ conf {conf}. "
+          f"-> {total_tiles} tiles ({src_tile_px}px -> {OUT_SIZE}px) @ conf {conf}. "
           f"Detecting...")
 
     done = 0
@@ -98,9 +100,9 @@ with rasterio.open(d["survey"]) as src:
                 print(f"  {done}/{total_tiles} tiles | {len(world_boxes)} detections "
                       f"| {skipped} empty tiles skipped")
 
-            window = Window(col_off, row_off, src_chip_px, src_chip_px)
+            window = Window(col_off, row_off, src_tile_px, src_tile_px)
 
-            # mirrors chip_data.py exactly — bilinear, because coarser surveys are
+            # mirrors tile_data.py exactly — bilinear, because coarser surveys are
             # upsampled into the constant output size rather than downsampled
             tile = src.read([1, 2, 3], window=window,
                             out_shape=(3, OUT_SIZE, OUT_SIZE),
@@ -126,7 +128,7 @@ with rasterio.open(d["survey"]) as src:
             top = win_t.f
 
             for (x1, y1, x2, y2), c in zip(boxes_px, confs):
-                # output-chip px -> world coordinates
+                # output-tile px -> world coordinates
                 wx1 = left + x1 / OUT_SIZE * GROUND_M
                 wx2 = left + x2 / OUT_SIZE * GROUND_M
                 wy1 = top - y1 / OUT_SIZE * GROUND_M

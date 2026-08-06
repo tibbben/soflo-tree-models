@@ -9,6 +9,8 @@ Run from the project root:
     python scripts/downsample.py [target_cm]     # default 7.5
 
 Output: ./download/umgables_2025/umgables_2025_drone_survey_<target>cm.tif
+
+Written by Ahsan and Claude.
 """
 
 import sys

@@ -76,7 +76,7 @@ gain at the peak. For reference, Yoo et al. (2026) reported YOLOv9e at F1 0.687 
 
 ## Resolution
 
-Constant-input design (every chip emitted at a fixed pixel size covering a fixed ground
+Constant-input design (every tile emitted at a fixed pixel size covering a fixed ground
 footprint; coarser sources upsampled into it, so image detail is the only variable).
 Evaluation-region F1:
 
@@ -95,7 +95,7 @@ Finer than 5 cm does not help: 1.6 cm was tested twice and lost both times (0.53
 5 cm is already at crown scale. **Resolution is closed.**
 
 An earlier resolution test scaled the model input with source resolution, which upscaled
-every chip to the same size and normalised detail away — producing a flat, uninformative
+every tile to the same size and normalised detail away — producing a flat, uninformative
 result. The constant-input design above corrects that; any future resolution comparison
 must use it.
 
@@ -124,6 +124,41 @@ being large enough to swallow non-tree structures.
 
 **Box size is closed.** Intermediate sizes (2 m, 4 m) were not pursued — any difference
 would fall inside a seed-noise band that has not yet been measured.
+
+---
+
+## Confidence thresholds
+
+Confidence selects an operating point on a curve the model has already produced — it does
+not change the model. Detection is therefore run once at a low floor, with the score kept
+on every detection, and any higher threshold applied as a filter at scoring time. One
+detection pass supports the whole sweep.
+
+The champion (YOLO26, 5 cm, fixed 5 m boxes) scored on the evaluation region against
+10,658 ground-truth points, match radius 5 m:
+
+| Confidence | Detections | TP | FP | FN | Precision | Recall | F1 |
+|---|---|---|---|---|---|---|---|
+| 0.05 | 24,776 | 9,746 | 15,030 | 912 | 0.393 | 0.914 | 0.550 |
+| 0.10 | 15,333 | 8,522 | 6,811 | 2,136 | 0.556 | 0.800 | 0.656 |
+| **0.15** | 11,106 | 7,185 | 3,921 | 3,473 | 0.647 | 0.674 | **0.660** |
+| 0.20 | 8,675 | 6,149 | 2,526 | 4,509 | 0.709 | 0.577 | 0.636 |
+| 0.25 | 7,078 | 5,348 | 1,730 | 5,310 | 0.756 | 0.502 | 0.603 |
+| 0.30 | 5,899 | 4,657 | 1,242 | 6,001 | 0.789 | 0.437 | 0.563 |
+
+The curve is flat between 0.10 and 0.15 (0.656 vs 0.660), so the exact peak is not sharply
+defined. **0.15 is the headline operating point** used throughout this repository.
+
+Three points are worth calling out for different uses:
+
+- **0.10** — recall 0.800 at essentially peak F1. The best choice when the goal is to map
+  as many trees as possible, which is the objective for this deliverable.
+- **0.15** — peak F1, balanced precision and recall.
+- **0.30** — precision 0.789, for a conservative layer where false positives are more
+  costly than misses.
+
+Comparisons between models must use each model's own peak-F1 confidence, since the curves
+peak in different places — the 3 m box model peaks at 0.075, YOLOv9e at 0.10.
 
 ---
 
@@ -197,6 +232,21 @@ Real fixes are crown-aware:
 
 ---
 
+## Compute
+
+Early experiments ran on a personal laptop: RTX 4060 Laptop GPU (8 GB VRAM), 32 GB RAM,
+Intel Core i7-13700HX. That machine can train the champion configuration, but slowly, and
+its 8 GB of VRAM forces a much smaller batch size than the committed config uses.
+
+**Most of the results reported here were produced on the University of Miami Pegasus
+cluster**, on an NVIDIA H100 GPU under the IBM LSF batch scheduler. The committed
+training config (`batch: 16` at `imgsz: 1280`) assumes that hardware.
+
+Detection and benchmarking are far lighter than training and run comfortably on the
+laptop — the champion's evaluation-region threshold sweep was reproduced there.
+
+---
+
 ## Confirmed dead ends
 
 Do not retry:
@@ -211,17 +261,3 @@ Do not retry:
 - Vegetation-index / near-infrared approaches — the fourth band of the
   highest-resolution survey is an alpha channel, not NIR. No spectral signal is available.
 - Longer training without augmentation
-
----
-
-## Key operating points
-
-The champion at other confidence thresholds, for use cases that weight recall differently:
-
-| Confidence | Precision | Recall | F1 |
-|---|---|---|---|
-| 0.15 | 0.647 | 0.674 | 0.660 (peak) |
-| 0.10 | — | 0.799 | 0.656 |
-
-Confidence selects an operating point; it does not change the model. Comparisons between
-models must use each model's own peak-F1 confidence.

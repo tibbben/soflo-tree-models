@@ -7,7 +7,8 @@ evaluation-region crop (no usable ground truth exists for this site yet).
 
 Usage from another script:
     from config import load, summary
-    cfg = load(sys.argv[1])
+
+Written by Ahsan and Claude.
 """
 
 import yaml
@@ -23,7 +24,7 @@ def load(path):
     # tile overlap defaults to the crown radius, matching the campus pipeline
     d.setdefault("overlap_m", d["radius_m"])
 
-    # The crown box in OUTPUT-chip pixels. NOT used for detection — the model predicts
+    # The crown box in OUTPUT-tile pixels. NOT used for detection — the model predicts
     # its own boxes, and their size is fixed in its trained weights. Kept only so the
     # printed summary shows the apparent crown scale the model was trained at.
     d["crown_radius_out_px"] = int(d["radius_m"] / d["ground_m"] * d["out_size"])
@@ -36,6 +37,6 @@ def summary(cfg, stage):
     d = cfg["data"]
     print(f"[{stage}] config: {cfg['name']}")
     print(f"[{stage}] plot dir: {d['plot_dir']}")
-    print(f"[{stage}] {d['ground_m']}m ground -> {d['out_size']}px chip | "
+    print(f"[{stage}] {d['ground_m']}m ground -> {d['out_size']}px tile | "
           f"reference crown radius {d['radius_m']}m = {d['crown_radius_out_px']}px | "
           f"overlap {d['overlap_m']}m")

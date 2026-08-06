@@ -47,12 +47,12 @@ clips rather than a model or pipeline issue. 48 of 51 plots yielded output.
 Two models were run, each fed imagery at the resolution it was trained at. The clips are
 downsampled on the fly from the 1.69 cm source — no intermediate files are created.
 
-| | Model | Chip geometry | Effective GSD |
+| | Model | Tile geometry | Effective GSD |
 |---|---|---|---|
 | YOLO | Campus champion (YOLO26, fine-tuned) | 640 px over 32 m | 5 cm |
 | DeepForest | `weecology/deepforest-tree` release weights | 400 px over 40 m | 10 cm |
 
-The campus champion was trained on 5 cm imagery in 640 px / 32 m chips; the DeepForest
+The campus champion was trained on 5 cm imagery in 640 px / 32 m tiles; the DeepForest
 release model was trained on NEON imagery at ~10 cm in 400 × 400 px patches. Matching each
 model to its own training geometry is more defensible than forcing both through identical
 tiling, because neither is being fine-tuned here and so nothing would correct a scale
@@ -191,6 +191,19 @@ DeepForest one is pinned to `deepforest==1.5.2` and `albumentations<2.0`.
 
 ---
 
+## Compute
+
+Detection for this site was run entirely on a personal laptop: RTX 4060 Laptop GPU
+(8 GB VRAM), 32 GB RAM, Intel Core i7-13700HX. The plot clips total tens of gigabytes,
+so transferring them to a cluster would have cost more time than the inference itself.
+
+Inference is far lighter than training — the full 51-plot YOLO pass takes well under an
+hour on this hardware, and DeepForest is comparable. By contrast, the campus model these
+runs use was trained on the University of Miami Pegasus cluster (NVIDIA H100, IBM LSF
+scheduler); no training was performed for this site.
+
+---
+
 ## Future work
 
 1. **Fix the census alignment.** This is the blocker for everything quantitative. Until
@@ -219,3 +232,4 @@ DeepForest one is pinned to `deepforest==1.5.2` and `albumentations<2.0`.
    Instance segmentation (e.g. detectree2) is the better-matched approach for dense
    forest, and DeepForest's own strength lies in crown segmentation rather than point
    detection.
+

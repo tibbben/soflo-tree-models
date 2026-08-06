@@ -2,7 +2,7 @@
 detect_gtregion.py — config-driven detection on the evaluation-region crop, for
 benchmarking.
 
-Reads the SAME config as the chipper, so the tiling geometry cannot drift between
+Reads the SAME config as the tiler, so the tiling geometry cannot drift between
 training and inference.
 
 Companion to detect_full.py, which runs the same model across the whole survey to
@@ -18,6 +18,8 @@ A low confidence floor lets one detection run cover an entire threshold sweep at
 benchmark time.
 
 Output: ./output/tree_detections_gtregion.geojson (+ .shp)
+
+Written by Ahsan and Claude.
 """
 
 import sys
@@ -68,15 +70,15 @@ world_confs = []
 with rasterio.open(d["survey_gtregion"]) as src:
     raster_crs = src.crs
     pixel_size = src.res[0]
-    src_chip_px = int(round(GROUND_M / pixel_size))
+    src_tile_px = int(round(GROUND_M / pixel_size))
     src_overlap_px = int(round(OVERLAP_M / pixel_size))
-    step = src_chip_px - src_overlap_px
+    step = src_tile_px - src_overlap_px
 
-    row_offs = offsets(src.height, src_chip_px, step)
-    col_offs = offsets(src.width, src_chip_px, step)
+    row_offs = offsets(src.height, src_tile_px, step)
+    col_offs = offsets(src.width, src_tile_px, step)
     total_tiles = len(row_offs) * len(col_offs)
     print(f"Evaluation-region crop {src.width}x{src.height}px @ {pixel_size:.4f}m/px "
-          f"-> {total_tiles} tiles ({src_chip_px}px -> {OUT_SIZE}px). Detecting...")
+          f"-> {total_tiles} tiles ({src_tile_px}px -> {OUT_SIZE}px). Detecting...")
 
     done = 0
     for row_off in row_offs:
@@ -85,9 +87,9 @@ with rasterio.open(d["survey_gtregion"]) as src:
             if done % 500 == 0:
                 print(f"  {done}/{total_tiles} tiles | {len(world_boxes)} detections so far")
 
-            window = Window(col_off, row_off, src_chip_px, src_chip_px)
+            window = Window(col_off, row_off, src_tile_px, src_tile_px)
 
-            # mirrors chip_data.py exactly — bilinear, because coarser surveys are
+            # mirrors tile_data.py exactly — bilinear, because coarser surveys are
             # upsampled into the constant output size rather than downsampled
             tile = src.read([1, 2, 3], window=window,
                             out_shape=(3, OUT_SIZE, OUT_SIZE),
@@ -112,7 +114,7 @@ with rasterio.open(d["survey_gtregion"]) as src:
             top = win_t.f
 
             for (x1, y1, x2, y2), c in zip(boxes_px, confs):
-                # output-chip px -> world coordinates
+                # output-tile px -> world coordinates
                 wx1 = left + x1 / OUT_SIZE * GROUND_M
                 wx2 = left + x2 / OUT_SIZE * GROUND_M
                 wy1 = top - y1 / OUT_SIZE * GROUND_M

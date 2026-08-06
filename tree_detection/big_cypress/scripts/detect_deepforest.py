@@ -19,6 +19,8 @@ Run from the big_cypress project root:
     python scripts/detect_deepforest.py <config.yaml> [score_thresh]
 
 Output: ./output/deepforest/<plot>.geojson  plus  ./output/deepforest_all_plots.geojson
+
+Written by Ahsan and Claude.
 """
 
 import sys
@@ -109,25 +111,25 @@ for pi, plot_path in enumerate(plot_files, start=1):
         dtype_name = src.dtypes[0]
 
         # tile by GROUND distance, so crowns appear at the scale the model expects
-        src_chip_px = int(round(GROUND_M / pixel_size))
+        src_tile_px = int(round(GROUND_M / pixel_size))
         src_overlap_px = int(round(OVERLAP_M / pixel_size))
-        step = max(1, src_chip_px - src_overlap_px)
+        step = max(1, src_tile_px - src_overlap_px)
 
         if src.count < 3:
             print(f"[{pi}/{len(plot_files)}] {plot_name}: only {src.count} band(s), skipping")
             continue
 
-        row_offs = offsets(src.height, src_chip_px, step)
-        col_offs = offsets(src.width, src_chip_px, step)
+        row_offs = offsets(src.height, src_tile_px, step)
+        col_offs = offsets(src.width, src_tile_px, step)
         total_tiles = len(row_offs) * len(col_offs)
 
         print(f"[{pi}/{len(plot_files)}] {plot_name}: {src.width}x{src.height}px @ "
               f"{pixel_size:.4f}m/px ({dtype_name}, {src.count} bands) -> "
-              f"{total_tiles} tiles of {src_chip_px}px")
+              f"{total_tiles} tiles of {src_tile_px}px")
 
         for row_off in row_offs:
             for col_off in col_offs:
-                window = Window(col_off, row_off, src_chip_px, src_chip_px)
+                window = Window(col_off, row_off, src_tile_px, src_tile_px)
 
                 # Read the first three bands only; the 4th band is alpha, not NIR.
                 # AVERAGE resampling, not bilinear: these windows are DOWNsampled to
@@ -166,7 +168,7 @@ for pi, plot_path in enumerate(plot_files, start=1):
                     x2, y2 = float(row["xmax"]), float(row["ymax"])
                     c = float(row["score"])
 
-                    # output-chip px -> world coordinates
+                    # output-tile px -> world coordinates
                     wx1 = left + x1 / OUT_SIZE * GROUND_M
                     wx2 = left + x2 / OUT_SIZE * GROUND_M
                     wy1 = top - y1 / OUT_SIZE * GROUND_M

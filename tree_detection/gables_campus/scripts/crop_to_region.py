@@ -20,6 +20,8 @@ Writes: ./download/umgables_2025/umgables_2025_drone_survey_5cm_gtregion.tif
 To crop a different survey (e.g. a downsampled one), edit the three paths below. This
 script is deliberately not config-driven; it is only run when a new source raster is
 introduced.
+
+Written by Ahsan and Claude.
 """
 
 import geopandas as gpd

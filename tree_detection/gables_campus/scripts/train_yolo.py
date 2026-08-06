@@ -8,6 +8,8 @@ run is self-documenting.
 
 Run from the project root ON A GPU (submit as a batch job on a scheduled cluster):
     python scripts/train_yolo.py ./configs/champion_5cm_5m.yaml
+
+Written by Ahsan and Claude.
 """
 
 import sys

@@ -18,7 +18,7 @@ plot clips ──┬──► detect_yolo.py       ──► points ──► QG
                     (release weights, 10cm)
 ```
 
-Each detector reads its own YAML config. The two configs differ in chip geometry, which is
+Each detector reads its own YAML config. The two configs differ in tile geometry, which is
 deliberate — see §5.
 
 ---
@@ -58,6 +58,18 @@ Verify:
 python -c "import torch; print('cuda:', torch.cuda.is_available())"
 python -c "from deepforest import main; m=main.deepforest(); m.load_model('weecology/deepforest-tree'); print('weights ok')"
 ```
+
+### Compute used
+
+Both detectors were run on a personal laptop — NVIDIA RTX 4060 Laptop GPU (8 GB VRAM),
+32 GB RAM, Intel Core i7-13700HX. Detection is inference only, so 8 GB is comfortable at
+batch 1, and the plot clips are large enough (~370 MB each, ~18 GB total) that moving them
+to a cluster would cost more time than the compute saves. The full 51-plot YOLO pass
+completes in well under an hour on this hardware; DeepForest is comparable.
+
+No training happens here. The campus weights these runs use were trained on the University
+of Miami Pegasus cluster (NVIDIA H100, IBM LSF batch scheduler) — see the
+gables_campus pipeline.
 
 ---
 
@@ -121,16 +133,16 @@ rejected, so other surveys can be run through the same scripts.
 
 ## 5. The two geometries
 
-Chips are cut by **ground distance**, then resampled to a fixed pixel size. This means the
+Tiles are cut by **ground distance**, then resampled to a fixed pixel size. This means the
 effective resolution presented to a model is set by the config, and the source imagery is
 downsampled on the fly — no intermediate files are created.
 
-| | Chip | Ground | Source px read | Effective GSD |
+| | Tile | Ground | Source px read | Effective GSD |
 |---|---|---|---|---|
 | YOLO | 640 px | 32 m | 1893 | 5 cm |
 | DeepForest | 400 px | 40 m | 2367 | 10 cm |
 
-The campus champion was trained on 5 cm imagery in 640 px / 32 m chips. The DeepForest
+The campus champion was trained on 5 cm imagery in 640 px / 32 m tiles. The DeepForest
 release model was trained on NEON imagery at ~10 cm in 400 × 400 px patches. Each is fed
 the geometry it was trained on.
 
@@ -155,8 +167,8 @@ name: bigcypress_plots
 
 data:
   plot_dir: ./download/ortho_clipped   # directory of per-plot .tif clips
-  out_size: 640          # every chip is emitted at this pixel size
-  ground_m: 32.0         # every chip covers this much ground
+  out_size: 640          # every tile is emitted at this pixel size
+  ground_m: 32.0         # every tile covers this much ground
   radius_m: 5.0          # reference crown radius — printed summary only, see below
   overlap_m: 5.0         # tile overlap in metres, resolution-independent
 
@@ -228,6 +240,9 @@ things to each, and each needs its own threshold. Provisional values chosen visu
 
 ## Appendix: known rough edges
 
+- Three plots (`plot_11_2`, `plot_12_3`, `plot_8_3`) produce no detections from either
+  model. Because both fail identically, this is a property of those clips rather than a
+  model or pipeline issue.
 - `nms_iou` is 0.5 in both configs, inherited from the campus pipeline and never swept
   there either. Closed canopy is the case where a lower value should help; this is untested.
 - The DeepForest config carries an `imgsz` key for shape consistency with the YOLO config,

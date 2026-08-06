@@ -1,7 +1,7 @@
 # Big Cypress — DeepForest release-model detection on the plot clips.
 #
 # Geometry deliberately DIFFERS from the YOLO config. The DeepForest release model was
-# pretrained on NEON RGB at ~10cm GSD in 400x400px patches, so chips are cut to match
+# pretrained on NEON RGB at ~10cm GSD in 400x400px patches, so tiles are cut to match
 # that exactly: 400px over 40m of ground = 10cm effective resolution.
 #
 # This matters more than it did on campus. There, a resolution mismatch was partly
