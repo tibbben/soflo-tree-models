@@ -1,0 +1,89 @@
+[stage1] TD_SKIP_CHIPS set — reusing the cached chips.
+
+[stage2] train TreeNet (hand-built, 2.67 M params, width=24) device=mps epochs=60 batch=8 lr=0.001 loss=focal
+         train chips=2379  val chips=370  early stop on val F1 @ 2.0 m (patience 10)
+   [epoch 00]   74.3s loss=2.8342 val_F1=0.3933 (P 0.284 R 0.637 @conf 0.0655) peakRAM=0.8GB
+   [epoch 01]   73.8s loss=2.7732 val_F1=0.4248 (P 0.339 R 0.569 @conf 0.06498) peakRAM=0.8GB
+   [epoch 02]   77.8s loss=2.7525 val_F1=0.4024 (P 0.303 R 0.600 @conf 0.05742) peakRAM=0.8GB
+   [epoch 03]   75.5s loss=2.7411 val_F1=0.3613 (P 0.277 R 0.518 @conf 0.06483) peakRAM=0.8GB
+   [epoch 04]   76.6s loss=2.7183 val_F1=0.4308 (P 0.376 R 0.505 @conf 0.0823) peakRAM=0.8GB
+   [epoch 05]   74.1s loss=2.7085 val_F1=0.3982 (P 0.320 R 0.528 @conf 0.07891) peakRAM=0.8GB
+   [epoch 06]   73.7s loss=2.6997 val_F1=0.3749 (P 0.299 R 0.503 @conf 0.07222) peakRAM=0.8GB
+   [epoch 07]   73.8s loss=2.6900 val_F1=0.4001 (P 0.319 R 0.536 @conf 0.07453) peakRAM=0.8GB
+   [epoch 08]   73.7s loss=2.6716 val_F1=0.4132 (P 0.347 R 0.511 @conf 0.08776) peakRAM=0.8GB
+   [epoch 09]   77.8s loss=2.6536 val_F1=0.4202 (P 0.345 R 0.538 @conf 0.07924) peakRAM=0.8GB
+   [epoch 10]   75.3s loss=2.6400 val_F1=0.4374 (P 0.360 R 0.557 @conf 0.08184) peakRAM=0.8GB
+   [epoch 11]   73.4s loss=2.6386 val_F1=0.4074 (P 0.339 R 0.509 @conf 0.08227) peakRAM=0.8GB
+   [epoch 12]   73.4s loss=2.6389 val_F1=0.4103 (P 0.327 R 0.549 @conf 0.07955) peakRAM=0.8GB
+   [epoch 13]   73.5s loss=2.6214 val_F1=0.4146 (P 0.327 R 0.566 @conf 0.07973) peakRAM=0.8GB
+   [epoch 14]   77.8s loss=2.6132 val_F1=0.4355 (P 0.363 R 0.544 @conf 0.08802) peakRAM=0.8GB
+   [epoch 15]   74.4s loss=2.5768 val_F1=0.4427 (P 0.408 R 0.484 @conf 0.0928) peakRAM=0.8GB
+   [epoch 16]  173.6s loss=2.5607 val_F1=0.4337 (P 0.374 R 0.516 @conf 0.08685) peakRAM=0.8GB
+   [epoch 17] 13477.1s loss=2.5481 val_F1=0.4544 (P 0.404 R 0.519 @conf 0.10118) peakRAM=0.8GB
+   [epoch 18]  530.2s loss=2.5524 val_F1=0.4290 (P 0.350 R 0.555 @conf 0.07732) peakRAM=0.8GB
+   [epoch 19]   73.5s loss=2.5323 val_F1=0.4397 (P 0.416 R 0.466 @conf 0.09271) peakRAM=0.8GB
+   [epoch 20]   76.0s loss=2.5307 val_F1=0.4483 (P 0.384 R 0.537 @conf 0.09552) peakRAM=0.8GB
+   [epoch 21]   75.2s loss=2.5254 val_F1=0.4028 (P 0.366 R 0.449 @conf 0.07875) peakRAM=0.8GB
+   [epoch 22]   75.8s loss=2.4927 val_F1=0.4404 (P 0.364 R 0.558 @conf 0.08099) peakRAM=0.8GB
+   [epoch 23]   76.7s loss=2.4783 val_F1=0.4439 (P 0.384 R 0.527 @conf 0.09188) peakRAM=0.8GB
+   [epoch 24]   76.0s loss=2.4616 val_F1=0.4304 (P 0.382 R 0.492 @conf 0.08564) peakRAM=0.8GB
+   [epoch 25]   74.7s loss=2.4571 val_F1=0.4184 (P 0.353 R 0.513 @conf 0.09606) peakRAM=0.8GB
+   [epoch 26]   74.9s loss=2.4420 val_F1=0.4128 (P 0.370 R 0.466 @conf 0.09767) peakRAM=0.8GB
+   [epoch 27]   74.7s loss=2.4289 val_F1=0.4314 (P 0.393 R 0.478 @conf 0.10661) peakRAM=0.8GB
+   early stop (no val-F1 improvement)
+[stage2] best val F1 = 0.4544 over 28 epochs, peakRAM=0.8GB
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/gables_scratch/train_curve.png
+
+loaded scratch_best.pt for inference
+
+[stage3] inference over the TEST AOI: 3038 windows (320px, stride 240px) streamed from test_clip.tif
+   406/3038 windows  (2420 raw peaks, 3s, peakRAM=0.8GB)
+   800/3038 windows  (6121 raw peaks, 6s, peakRAM=0.8GB)
+   1204/3038 windows  (11168 raw peaks, 10s, peakRAM=0.8GB)
+   1605/3038 windows  (17542 raw peaks, 14s, peakRAM=0.8GB)
+   2005/3038 windows  (24223 raw peaks, 17s, peakRAM=0.8GB)
+   2405/3038 windows  (30086 raw peaks, 21s, peakRAM=0.8GB)
+   2805/3038 windows  (34893 raw peaks, 25s, peakRAM=0.8GB)
+[stage3] 37725 raw local maxima >= 0.02 (296 nodata windows skipped, 27s)
+         score range 0.020 - 0.419, median 0.081
+
+===== STAGE 4 — Gables DISTANCE-matched eval (s20 from-scratch peaks) =====
+(peaks -> nearest inventory point, greedy top-conf, one-to-one, KD-tree; protocol identical to s19)
+confidence sweep: 25 quantiles of the peak-score distribution, 0.020 - 0.248
+
+--- clean_eval_region: 299 inventory points ---
+   r=1.0 m  best@conf 0.09181: P 0.059  R 0.204  F1 0.092  | random R 0.049  edge +0.155  (pred 1028, inv 299, TP 61)
+   r=2.0 m  best@conf 0.09181: P 0.150  R 0.515  F1 0.232  | random R 0.170  edge +0.345  (pred 1028, inv 299, TP 154)
+   r=5.0 m  best@conf 0.11468: P 0.369  R 0.488  F1 0.420  | random R 0.290  edge +0.198  (pred 396, inv 299, TP 146)
+
+--- full_test_aoi: 2211 inventory points ---
+   r=1.0 m  best@conf 0.13694: P 0.122  R 0.118  F1 0.120  | random R 0.016  edge +0.102  (pred 2139, inv 2211, TP 260)
+   r=2.0 m  best@conf 0.13694: P 0.266  R 0.257  F1 0.262  | random R 0.053  edge +0.204  (pred 2139, inv 2211, TP 569)
+   r=5.0 m  best@conf 0.11468: P 0.335  R 0.596  F1 0.429  | random R 0.343  edge +0.254  (pred 3932, inv 2211, TP 1318)
+
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/gables_scratch/gables_scratch_distance_eval.csv
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/gables_scratch/predicted_points.geojson  (3989 peaks @ conf 0.11468)
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/gables_scratch/heatmap_tile.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/gables_scratch/predictions_overlay.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/gables_scratch/benchmark_3way.csv
+
+========== HEAD-TO-HEAD (5 m distance match, labelled region) ==========
+model                                        P       R      F1
+--------------------------------------------------------------
+YOLO26s (Ahsan)                          0.647   0.674   0.660
+DeepForest, fine-tuned (s19)             0.674   0.498   0.573
+MY from-scratch heatmap CNN (s20)        0.369   0.488   0.420
+==============================================================
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/gables_scratch/benchmark_3way.png
+
+========================= VERDICT =========================
+radius 1.0 m: P 0.059  R 0.204  F1 0.092   | random-scatter recall 0.049  edge +0.155
+radius 2.0 m: P 0.150  R 0.515  F1 0.232   | random-scatter recall 0.170  edge +0.345
+radius 5.0 m: P 0.369  R 0.488  F1 0.420   | random-scatter recall 0.290  edge +0.198
+
+5 m head-to-head ranking: YOLO26s 0.660  >  DeepForest 0.573  >  from-scratch (mine) 0.420
+from-scratch vs DeepForest: -0.153 F1   |   vs YOLO26s: -0.240 F1
+peak RAM this process: 0.8 GB
+NOTE: distance eval (not IoU); the inventory is known to undercount, so
+      precision is conservative for every model in this table equally.
+===========================================================

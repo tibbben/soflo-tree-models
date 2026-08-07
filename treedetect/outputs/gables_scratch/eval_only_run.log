@@ -1,0 +1,57 @@
+[stage1] TD_SKIP_CHIPS set — reusing the cached chips.
+
+[stage2] TD_SKIP_TRAIN set — evaluating the existing checkpoint.
+
+loaded scratch_best.pt for inference
+
+[stage3] inference over the TEST AOI: 3038 windows (320px, stride 240px) streamed from test_clip.tif
+   406/3038 windows  (2420 raw peaks, 4s, peakRAM=0.4GB)
+   800/3038 windows  (6121 raw peaks, 7s, peakRAM=0.5GB)
+   1204/3038 windows  (11168 raw peaks, 11s, peakRAM=0.5GB)
+   1605/3038 windows  (17542 raw peaks, 15s, peakRAM=0.5GB)
+   2005/3038 windows  (24223 raw peaks, 18s, peakRAM=0.5GB)
+   2405/3038 windows  (30086 raw peaks, 22s, peakRAM=0.5GB)
+   2805/3038 windows  (34893 raw peaks, 26s, peakRAM=0.5GB)
+[stage3] 37725 raw local maxima >= 0.02 (296 nodata windows skipped, 29s)
+         score range 0.020 - 0.419, median 0.081
+
+===== STAGE 4 — Gables DISTANCE-matched eval (s20 from-scratch peaks) =====
+(peaks -> nearest inventory point, greedy top-conf, one-to-one, KD-tree; protocol identical to s19)
+confidence sweep: 25 quantiles of the peak-score distribution, 0.020 - 0.248
+
+--- clean_eval_region: 299 inventory points ---
+   r=1.0 m  best@conf 0.09181: P 0.059  R 0.204  F1 0.092  | random R 0.049  edge +0.155  (pred 1028, inv 299, TP 61)
+   r=2.0 m  best@conf 0.09181: P 0.150  R 0.515  F1 0.232  | random R 0.170  edge +0.345  (pred 1028, inv 299, TP 154)
+   r=5.0 m  best@conf 0.11468: P 0.369  R 0.488  F1 0.420  | random R 0.290  edge +0.198  (pred 396, inv 299, TP 146)
+
+--- full_test_aoi: 2211 inventory points ---
+   r=1.0 m  best@conf 0.13694: P 0.122  R 0.118  F1 0.120  | random R 0.016  edge +0.102  (pred 2139, inv 2211, TP 260)
+   r=2.0 m  best@conf 0.13694: P 0.266  R 0.257  F1 0.262  | random R 0.053  edge +0.204  (pred 2139, inv 2211, TP 569)
+   r=5.0 m  best@conf 0.11468: P 0.335  R 0.596  F1 0.429  | random R 0.343  edge +0.254  (pred 3932, inv 2211, TP 1318)
+
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/gables_scratch/gables_scratch_distance_eval.csv
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/gables_scratch/predicted_points.geojson  (3989 peaks @ conf 0.11468)
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/gables_scratch/heatmap_tile.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/gables_scratch/predictions_overlay.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/gables_scratch/benchmark_3way.csv
+
+========== HEAD-TO-HEAD (5 m distance match, labelled region) ==========
+model                                        P       R      F1
+--------------------------------------------------------------
+YOLO26s (Ahsan)                          0.647   0.674   0.660
+DeepForest, fine-tuned (s19)             0.674   0.498   0.573
+MY from-scratch heatmap CNN (s20)        0.369   0.488   0.420
+==============================================================
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/gables_scratch/benchmark_3way.png
+
+========================= VERDICT =========================
+radius 1.0 m: P 0.059  R 0.204  F1 0.092   | random-scatter recall 0.049  edge +0.155
+radius 2.0 m: P 0.150  R 0.515  F1 0.232   | random-scatter recall 0.170  edge +0.345
+radius 5.0 m: P 0.369  R 0.488  F1 0.420   | random-scatter recall 0.290  edge +0.198
+
+5 m head-to-head ranking: YOLO26s 0.660  >  DeepForest 0.573  >  from-scratch (mine) 0.420
+from-scratch vs DeepForest: -0.153 F1   |   vs YOLO26s: -0.240 F1
+peak RAM this process: 0.8 GB
+NOTE: distance eval (not IoU); the inventory is known to undercount, so
+      precision is conservative for every model in this table equally.
+===========================================================

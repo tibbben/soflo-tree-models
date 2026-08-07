@@ -196,5 +196,65 @@ bcnp_yolo:
   eval_conf: auto                 # headline threshold = best-F1 from the sweep
   conf_sweep: [0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
 
+# ── Gables FROM-SCRATCH point detector (s20) — capstone benchmark ───────────
+# A hand-written encoder-decoder CNN (NOT DeepForest, NOT YOLO): a compact custom
+# convolutional backbone + U-Net-style decoder that regresses a 1-channel tree-CENTRE
+# heatmap, supervised by Gaussians on the point-first inventory labels with the
+# CenterNet penalty-reduced focal loss (weighted MSE collapses to a zero map — that
+# is the s15 lesson). Trees are read off as local peaks, NMS'd by minimum distance.
+# Same spatial train/test split and same s11 clean-eval region as the DeepForest run,
+# and scored with the s19 distance-matched protocol, so the three models are directly
+# comparable. Frugal for an 18 GB Mac: lazy windowed reads, chips cached to disk,
+# never a whole clip in RAM, 32-bit, MPS.
+gables_scratch:
+  tile_px: 320
+  overlap: 0.5                  # train chips: stride = tile_px*(1-overlap) = 160
+  infer_overlap: 0.25           # inference stride 240 px — cheaper, NMS merges seams
+  sigma_px: 15                  # Gaussian target sigma in FULL-RES px (0.75 m at 5 cm);
+                                # median inventory nearest-neighbour is 4.3 m = 85 px,
+                                # so 3-sigma skirts (2.25 m) stay well separated
+  out_stride: 4                 # the heatmap is predicted at 1/4 resolution (80x80),
+                                # the CenterNet convention. At full resolution there are
+                                # 16x more negative pixels per positive and the focal
+                                # loss simply drives every peak to ~0.02 (measured: loss
+                                # plateaus at -log(p_peak)); that is the same low-peak-
+                                # confidence wall s15 hit. 4 px = 0.2 m localisation
+                                # granularity, far finer than the 1 m tightest match.
+  min_valid_frac: 0.6           # chip must be >=60% real imagery (clips have nodata)
+  min_trees_per_chip: 1
+  bg_ratio: 4                   # keep 1 empty (no-tree) chip per N tree chips
+  max_train_chips: 2000         # frugality cap on an 18 GB Mac
+  max_val_chips: 350            # val is only the early-stop signal; keep it cheap
+  val_frac_trees: 0.20          # top strip of the TRAIN AOI holding this share of the
+                                # TRAIN trees, held out for early stopping. Cut by tree
+                                # QUANTILE, not by area: the AOI's canopy is clustered
+                                # at the north end (the bottom 20% of rows holds 3% of
+                                # the trees), so an area fraction makes a lopsided split.
+                                # The TEST AOI is never touched during training.
+  width: 24                     # base channel width of the custom backbone
+  batch_size: 8
+  num_workers: 0                # 0 = main process: safest + most frugal on 18 GB
+  lr: 0.001
+  weight_decay: 0.0001
+  epochs: 60
+  early_stop_patience: 10       # on val best-F1 (not loss) — that is the target metric
+  keep_last_ckpts: 3            # a checkpoint is written EVERY epoch; only the most
+                                # recent N are retained (plus best/last) because this
+                                # machine's disk is nearly full
+  peak_min_dist_m: 2.0          # NMS min separation between predicted peaks
+  val_match_radius_m: 2.0       # radius used for the per-epoch val F1
+  match_radii_m: [1.0, 2.0, 5.0]        # MUST match s19
+  conf_sweep_points: 25         # the sweep is taken at QUANTILES of the model's own
+                                # peak-score distribution rather than at hard-coded
+                                # values. Same protocol as s19 (best F1 over a
+                                # confidence sweep) but it cannot silently miss the
+                                # useful range when the score scale is unknown a priori
+                                # — s19's 0.30-0.70 grid is calibrated to DeepForest's
+                                # scale and would resolve nothing on a heatmap.
+  # published head-to-head numbers for the benchmark table (5 m, labelled region)
+  baselines:
+    deepforest: {precision: 0.674, recall: 0.498, f1: 0.573}   # s19, this repo
+    yolo26s:    {precision: 0.647, recall: 0.674, f1: 0.660}   # Ahsan, origin/ahsan
+
 outputs_dir: outputs
 reports_dir: reports

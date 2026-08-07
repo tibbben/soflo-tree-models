@@ -1,0 +1,8 @@
+model,radius_m,precision,recall,f1
+s20_from_scratch,1.0,0.0593,0.204,0.0919
+deepforest_s19,1.0,0.2697,0.0803,0.1237
+s20_from_scratch,2.0,0.1498,0.5151,0.2321
+deepforest_s19,2.0,0.3032,0.2241,0.2577
+s20_from_scratch,5.0,0.3687,0.4883,0.4201
+deepforest_s19,5.0,0.6742,0.4983,0.5731
+yolo26s_ahsan,5.0,0.647,0.674,0.66

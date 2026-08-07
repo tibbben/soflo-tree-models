@@ -186,6 +186,68 @@ same ordering. YOLO's small-object/aerial design and stronger augmentation give 
 recall edge on this sparse, palm-heavy urban canopy; DeepForest's NEON-canopy
 pretraining keeps its precision competitive.
 
+## 3-way benchmark: adding a FROM-SCRATCH detector (`s20`)
+
+`s20` adds a third detector that is architecturally mine end-to-end: a hand-written
+~2 M-parameter encoder–decoder CNN (no torchvision backbone, no pretrained weights, no
+detection library) predicting a tree-centre heatmap at 1/4 resolution, trained with
+the CenterNet penalty-reduced focal loss on point supervision from the inventory, and
+decoded by local-peak NMS. Scored with the exact `s19` protocol: peaks → nearest
+inventory point, greedy top-confidence, one-to-one KD-tree matching, best-F1 over a
+25-point confidence sweep, inside the same `s11` clean-eval region.
+
+### Head-to-head (5 m distance match, clean-eval region)
+
+| Model | Pretraining | Precision | Recall | F1 (5 m) |
+|---|---|---|---|---|
+| YOLO26s (Ahsan) | COCO | 0.647 | **0.674** | **0.660** |
+| DeepForest fine-tuned (`s19`) | NEON canopy | **0.674** | 0.498 | 0.573 |
+| From-scratch heatmap CNN (`s20`) | none | 0.369 | 0.488 | 0.420 |
+
+From-scratch vs DeepForest: **−0.153 F1**; vs YOLO26s: **−0.240 F1**.
+
+### Full radius sweep (from-scratch, clean-eval region, 299 inventory points)
+
+| Radius | Precision | Recall | F1 | Random-scatter R | Edge over random |
+|---|---|---|---|---|---|
+| 1.0 m | 0.059 | 0.204 | 0.092 | 0.049 | +0.155 |
+| 2.0 m | 0.150 | 0.515 | 0.232 | 0.170 | +0.345 |
+| 5.0 m | 0.369 | 0.488 | 0.420 | 0.290 | +0.198 |
+
+Over the **full test AOI** (2,211 inventory points) it scores F1 0.120 / 0.262 / 0.429
+at 1 / 2 / 5 m with an edge over random of +0.102 / +0.204 / +0.254 — comfortably
+above the random-scatter floor at every radius and in both scopes, so the model is
+learning real canopy structure, not exploiting tree density.
+
+### Reading the result
+
+- **Recall nearly matches DeepForest** (0.488 vs 0.498) — the entire F1 gap is
+  precision: spurious peaks that a pretrained backbone's features would suppress.
+- Read as an ablation, **pretraining + a mature detection pipeline is worth
+  ~0.15–0.24 F1** on this site, with all data, split, and protocol held identical.
+- The inventory undercounts real trees (see the audit above), so precision is
+  conservative for every model in the table equally.
+
+### Provenance & reproduce
+
+Trained 28 epochs (~75 s/epoch on M-series MPS, peak RAM < 1 GB); early-stopping
+checkpoint `scratch_best.pt` is **epoch 17, best val F1 0.4544** at 2 m on the
+held-out spatial val strip. The numbers above were produced eval-only from that
+checkpoint (no retraining), 3,038 streamed inference windows over the test clip in
+~30 s yielding 37,725 raw local maxima:
+
+```bash
+TD_SKIP_CHIPS=1 TD_SKIP_TRAIN=1 .venv/bin/python src/s20_gables_scratch.py
+```
+
+Metrics: `outputs/gables_scratch/gables_scratch_distance_eval.csv` +
+`benchmark_3way.csv`; prediction layer at the headline operating point (conf 0.115):
+`outputs/gables_scratch/predicted_points.geojson`. Figures in
+`reports/gables_scratch/`: `benchmark_3way.png` (3-model bar chart + F1 vs radius),
+`heatmap_tile.png` (predicted heatmap + peaks on a held-out test tile),
+`predictions_overlay.png` (predictions vs inventory, clean-eval region),
+`train_curve.png` (training loss + val F1).
+
 ---
 
 ## Limitations & next steps

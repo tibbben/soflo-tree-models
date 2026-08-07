@@ -14,6 +14,10 @@ The headline results and findings live in per-site summaries (read these first):
   Distance-matched **F1 0.573** (5 m, clean-eval region; P 0.674 / R 0.498), the manual
   FP/FN audit (94/100 false positives were real unrecorded trees; recall miss is loose
   boxes, not blindness), resolution tuning, and a head-to-head vs Ahsan's YOLO26s (0.66).
+  Also the `s20` **from-scratch** heatmap detector (a hand-built CNN, not a library
+  detector): **F1 0.420** (5 m, same region/protocol), a 3-way benchmark on identical
+  data — from-scratch 0.420 vs DeepForest 0.573 vs YOLO26s 0.660 — that reads as a
+  pretraining ablation worth ~0.15–0.24 F1.
 - **[`bcnp/README.md`](bcnp/README.md)** — Big Cypress wetland results (`s13`–`s18`).
   Three detector families all converge to **F1 ≈ 0.11** and barely beat random scatter;
   dedicated diagnostics rule out a georeferencing bug (`s18`) and a label-visibility
@@ -58,12 +62,15 @@ Steps 01–06 above are the Gables detection core. Later steps extend it:
 | `s07`–`s08` | species labels + crop-classifier probe (Gables) | — |
 | `s09`–`s12` | recall experiments, manual FP/FN audit, clean-eval region, FP diagnosis | `gables_campus/README.md` |
 | `s19` | Gables distance-matched headline F1 | `gables_campus/README.md` |
+| `s20` | Gables FROM-SCRATCH heatmap detector + 3-way benchmark | `gables_campus/README.md` |
 | `s13` | BCNP 3-class species probe | `bcnp/README.md` |
 | `s14`–`s16` | BCNP detection: DeepForest boxes, heatmap peak-finder, YOLO26s | `bcnp/README.md` |
 | `s17`–`s18` | BCNP diagnostics: size-visibility re-score, georeferencing check | `bcnp/README.md` |
 
 Steps 01–02 run anywhere. Steps 03–06 need the orthomosaic and `deepforest`/`torch`.
 The BCNP steps (`s13`–`s18`) need the Big Cypress plots + census under `~/Downloads/bcnp/`.
+`s20` needs only `torch` and the `s02`/`s03` clips — it is self-contained and builds
+its detector from scratch rather than fine-tuning a released model.
 
 ## Reproduce / Setup
 
