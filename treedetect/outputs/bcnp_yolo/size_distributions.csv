@@ -1,0 +1,3 @@
+plot,alive,stems_per_ha,dbh_n,dbh_p50,dbh_p75,dbh_p90,totht_n,totht_cov,totht_p50,totht_p75,totht_p90
+plot_9_3,2576,2576,2576,19.8,24.7,30.5,194,0.075,3.3,4.1,4.6
+plot_12_1,1538,1538,1538,27.0,35.0,35.0,520,0.338,2.9,4.0,4.7

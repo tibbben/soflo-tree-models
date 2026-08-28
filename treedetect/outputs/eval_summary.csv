@@ -1,0 +1,2 @@
+box_precision,box_recall,iou_eval,score_thresh
+0.3996527838745849,0.38562782726445044,0.4,0.3

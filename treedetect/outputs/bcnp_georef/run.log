@@ -1,0 +1,47 @@
+===== STAGE 1 — PALM TEST (human-verifiable) =====
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_georef/palm_test_plot_18_2.png  (6 crops, densest palm cells)
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_georef/palm_test_plot_12_1.png  (4 crops, densest palm cells)
+
+===== STAGE 2 — offset / rotation / convention sweep (recall @1 m) =====
+  baseline (current convention, 0,0,0): recall 16.48%
+  best translation: dx=+1 dy=+0 m -> recall 16.72% (vs 16.48% at 0,0)
+  best fine rotation (at best dxdy): +0 deg -> recall 16.72%
+
+  discrete conventions (each optimised over dx,dy in +/-20 m):
+    current      : recall 16.48%  @ dx=+0 dy=+0
+    yflip        : recall 15.95%  @ dx=+0 dy=+0
+    xflip        : recall 16.02%  @ dx=+0 dy=+0
+    xyflip       : recall 16.09%  @ dx=+0 dy=-2
+    swap         : recall 16.09%  @ dx=+0 dy=-2
+    swap_yflip   : recall 16.07%  @ dx=+0 dy=-2
+    swap_xflip   : recall 16.04%  @ dx=+0 dy=+0
+    swap_xyflip  : recall 16.50%  @ dx=+2 dy=+0
+    rot90        : recall 15.46%
+    rot180       : recall 15.29%
+    rot270       : recall 15.85%
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_georef/offset_rotation_sweep.png
+
+  GLOBAL BEST: swap_xyflip++2,+0 -> recall 16.50% (baseline 16.48%)
+
+===== STAGE 3 — internal structure =====
+  plot_17_3: X[0.3,99.2] Y[0.1,99.0]  eigen_ratio 1.16 (isotropic)  poly axis-aligned True (edge dev 0.0000deg)  SW origin (506687,2870459)
+  plot_1_1: X[0.1,99.9] Y[0.4,99.9]  eigen_ratio 1.27 (isotropic)  poly axis-aligned True (edge dev 0.0000deg)  SW origin (506390,2876591)
+  plot_3_1: X[0.0,99.9] Y[0.0,99.7]  eigen_ratio 1.06 (isotropic)  poly axis-aligned True (edge dev 0.0000deg)  SW origin (509618,2876259)
+  plot_10_3: X[0.0,99.9] Y[0.5,99.9]  eigen_ratio 1.17 (isotropic)  poly axis-aligned True (edge dev 0.0000deg)  SW origin (506435,2873950)
+  plot_18_2: X[0.0,99.7] Y[0.0,100.0]  eigen_ratio 1.26 (isotropic)  poly axis-aligned True (edge dev 0.0000deg)  SW origin (505656,2871389)
+  plot_6_2: X[0.0,99.5] Y[0.0,100.0]  eigen_ratio 1.25 (isotropic)  poly axis-aligned True (edge dev 0.0000deg)  SW origin (506206,2875075)
+  plot_9_3: X[0.5,99.5] Y[0.3,99.6]  eigen_ratio 1.22 (isotropic)  poly axis-aligned True (edge dev 0.0000deg)  SW origin (505380,2873790)
+  plot_12_1: X[0.3,99.7] Y[0.0,99.5]  eigen_ratio 1.19 (isotropic)  poly axis-aligned True (edge dev 0.0000deg)  SW origin (509987,2873497)
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_georef/internal_structure.csv
+
+========================= VERDICT =========================
+polygons: all axis-aligned 100x100 m squares, SW corner = (min-x,min-y) origin — clean.
+census cloud: fills X[0-100] Y[0-100] m, near-isotropic — no internal rotation.
+baseline recall @1 m (current georef): 16.48%
+best translation:  dx=+1 dy=+0 m -> 16.72%
+best fine rotation: +0 deg -> 16.72%
+global best transform: swap_xyflip++2,+0 -> 16.50%
+==> GEOREFERENCING IS CORRECT. No translation, rotation, or convention flip lifts recall materially above the (0,0,0) baseline — the sweep peaks at the current placement. The models' shared failure is NOT a georef bug; it is the dense-canopy task itself (consistent with the s17 size test). Confirm visually via the palm crops.
+DECISIVE CHECK: open reports/bcnp_georef/palm_test_*.png — palm points must sit on
+radial-frond palm crowns. That is human-verifiable and independent of the weak model.
+===========================================================

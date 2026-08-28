@@ -1,0 +1,54 @@
+[stage0] model = yolo26s.pt  device=mps  batch=4 imgsz=640  amp=False  cache=False
+[stage2] GSD sweep (fixed box 2.0 m) ...
+   [gsd3_box2p0] gsd=3cm box=2.0m -> val F1@1.5m=0.064 (P0.05/R0.09 conf0.02) 1050s RAM5.5GB
+   [gsd5_box2p0] chips: train tree=180 bg=0 val_tree=36
+   [gsd5_box2p0] gsd=5cm box=2.0m -> val F1@1.5m=0.075 (P0.07/R0.08 conf0.02) 428s RAM5.5GB
+[stage2] best GSD = 5 cm
+[stage2] box-size sweep at 5 cm ...
+   [gsd5_box1p5] chips: train tree=180 bg=0 val_tree=36
+   [gsd5_box1p5] gsd=5cm box=1.5m -> val F1@1.5m=0.061 (P0.09/R0.05 conf0.02) 379s RAM5.5GB
+   [gsd5_box2p5] chips: train tree=180 bg=0 val_tree=36
+   [gsd5_box2p5] gsd=5cm box=2.5m -> val F1@1.5m=0.070 (P0.06/R0.08 conf0.02) 274s RAM5.5GB
+   [gsd5_box3p0] chips: train tree=180 bg=0 val_tree=36
+   [gsd5_box3p0] gsd=5cm box=3.0m -> val F1@1.5m=0.073 (P0.06/R0.09 conf0.02) 554s RAM5.5GB
+[stage2] best box = 2.0 m  (val F1 0.075)
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_yolo/sweep_results.png
+[stage3] final train @ GSD 5cm box 2.0m (epochs 120, patience 40) ...
+[stage3] final train done (2167s, RAM 5.5GB) -> /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_yolo/runs/final/weights/best.pt
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_yolo/train_curve.png
+   sweep conf=0.02 n_pred= 8184 P=0.094 R=0.188 F1=0.126
+   sweep conf=0.05 n_pred=  852 P=0.137 R=0.028 F1=0.047
+   sweep conf=0.1  n_pred=    1 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.15 n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.2  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.3  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.4  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.5  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.6  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.7  n_pred=    0 P=0.000 R=0.000 F1=0.000
+[stage4] auto eval_conf = 0.02 (best sweep F1)
+===== STAGE 4 — distance eval (conf=0.02) =====
+plot        radius  pred census    TP   prec  recall     F1
+-----------------------------------------------------------
+plot_9_3       1.0  4212   2576   430  0.102   0.167  0.127
+plot_9_3       1.5  4212   2576   482  0.114   0.187  0.142
+plot_12_1      1.0  3972   1538   248  0.062   0.161  0.090
+plot_12_1      1.5  3972   1538   290  0.073   0.189  0.105
+ALL            1.0  8184   4114   678  0.083   0.165  0.110
+ALL            1.5  8184   4114   772  0.094   0.188  0.126
+  random-scatter baseline (same counts, uniform in plot):
+    radius 1.0 m: P=0.072 R=0.143 F1=0.096
+    radius 1.5 m: P=0.094 R=0.188 F1=0.126
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_yolo/eval_metrics.csv
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_yolo/pr_sweep.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_yolo/overlay_plot_9_3.png
+========================= VERDICT =========================
+best config: GSD 5 cm/px, fixed box radius 2.0 m
+radius 1.0 m:  MODEL R 16.5% P  8.3% F1 11.0%  |  RANDOM R 14.3% P  7.2%  (edge +2.1 pts R)  [pred 8184 vs census 4114]
+radius 1.5 m:  MODEL R 18.8% P  9.4% F1 12.6%  |  RANDOM R 18.8% P  9.4%  (edge +0.0 pts R)  [pred 8184 vs census 4114]
+s15 heatmap peak-finder (same test, @1 m): F1 ~11%, edge over random +1.9 pts R
+==> YOLO BEATS random at 1.0 m (F1 11.0% vs 9.6%, P 8.3% vs 7.2%).
+peak RAM this process: 5.5 GB
+NOTE: distance eval at TIGHT radii + random floor (NOT partner's lenient 5 m);
+census exhaustive only inside each 100 m plot polygon.
+===========================================================

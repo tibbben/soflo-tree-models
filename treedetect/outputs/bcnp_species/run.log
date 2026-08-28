@@ -1,0 +1,60 @@
+[stage1] loaded cached crops: 20254
+
+===== STAGE 1 — crop counts (alive pine/cypress/palm) =====
+  pine      14595  (72.1%)
+  cypress    2929  (14.5%)
+  palm       2730  (13.5%)
+  TOTAL     20254
+  base rate (majority = pine): 72.1%
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_species/crop_counts.csv
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_species/class_counts.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_species/sample_crops.png
+
+===== STAGE 2 — spatial split by PLOT =====
+  test plots : ['plot_9_3', 'plot_12_1']
+  train n= 16160  pine=11918  cypress=2131  palm=2111
+  test  n=  4094  pine=2677  cypress=798  palm=619
+
+[stage3] extracting frozen ResNet18 features ...
+
+===== STAGE 3 — linear probe (frozen ResNet18 + logreg) =====
+  test acc 42.3%  (base 72.1%)
+    pine     P/R/F1 = 0.64/0.55/0.59
+    cypress  P/R/F1 = 0.16/0.17/0.16
+    palm     P/R/F1 = 0.14/0.21/0.17
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_species/probe_results.csv  [linear_probe]
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_species/confusion_linear_probe.png
+
+[stage4] fine-tune ResNet18 3-class  device=mps lr=0.0001 batch=64 max_epochs=15 weights=[0.45, 2.53, 2.55]
+   [epoch 00]  35.9s train_loss=0.7233 val_acc=0.5191
+   [epoch 01]  30.9s train_loss=0.4123 val_acc=0.5481
+   [epoch 02]  31.3s train_loss=0.2597 val_acc=0.5374
+   [epoch 03]  30.6s train_loss=0.1633 val_acc=0.5103
+   [epoch 04]  31.1s train_loss=0.1238 val_acc=0.5523
+   [epoch 05]  30.9s train_loss=0.0768 val_acc=0.5686
+   [epoch 06]  31.1s train_loss=0.0703 val_acc=0.5508
+   [epoch 07]  30.7s train_loss=0.0663 val_acc=0.5630
+   [epoch 08]  31.0s train_loss=0.0510 val_acc=0.5147
+   [epoch 09]  30.9s train_loss=0.0552 val_acc=0.5598
+   early stop
+
+===== STAGE 4 — fine-tune ResNet18 =====
+  test acc 56.9%  (base 72.1%)
+    pine     P/R/F1 = 0.67/0.78/0.72
+    cypress  P/R/F1 = 0.23/0.15/0.18
+    palm     P/R/F1 = 0.28/0.20/0.24
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_species/probe_results.csv  [finetune]
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_species/confusion_finetune.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_species/finetune_curve.png
+
+========================= VERDICT =========================
+base rate (predict-all-pine): 72.1%
+linear probe test accuracy  : 42.3%
+fine-tune   test accuracy   : 56.9%
+lift over base rate         : -15.2 pts
+cypress recall              : 0.15  (600/798 cypress -> predicted pine = 75%)
+palm recall                 : 0.20
+==> does NOT clearly beat base rate. Cypress is largely lost into pine.
+NOTE: GT-crop ceiling; dense stands mean crops overlap neighbours. Real end-to-end
+species accuracy will be lower, bounded by detection recall.
+===========================================================

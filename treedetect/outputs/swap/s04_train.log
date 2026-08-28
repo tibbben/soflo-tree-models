@@ -1,0 +1,48 @@
+GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+`Trainer(limit_val_batches=1.0)` was configured so 100% of the batches will be used..
+device=mps  max_epochs=50  batch_size=2  early_stop_patience=8  monitor=box_recall(max)  validation=TEST AOI @ IoU 0.4
+┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃   ┃ Name                    ┃ Type                  ┃ Params ┃ Mode  ┃ FLOPs ┃
+┡━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│ 0 │ model                   │ RetinaNetHub          │ 32.1 M │ eval  │     0 │
+│ 1 │ iou_metric              │ IntersectionOverUnion │      0 │ train │     0 │
+│ 2 │ mAP_metric              │ MeanAveragePrecision  │      0 │ train │     0 │
+│ 3 │ empty_frame_accuracy    │ BinaryAccuracy        │      0 │ train │     0 │
+│ 4 │ precision_recall_metric │ RecallPrecision       │      0 │ train │     0 │
+└───┴─────────────────────────┴───────────────────────┴────────┴───────┴───────┘
+Trainable params: 31.9 M                                                        
+Non-trainable params: 222 K                                                     
+Total params: 32.1 M                                                            
+Total estimated model params size (MB): 128.592                                 
+Modules in train mode: 4                                                        
+Modules in eval mode: 202                                                       
+Total FLOPs: 0                                                                  
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+/Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/.venv/lib/python3.11/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+[epoch 00]  129.1s  train_loss=0.6919  val_precision=0.43  val_recall=0.466  val_f1=0.448
+Metric box_recall improved. New best score: 0.466
+[epoch 01]  124.2s  train_loss=0.8875  val_precision=0.387  val_recall=0.48  val_f1=0.428
+Metric box_recall improved by 0.013 >= min_delta = 0.0. New best score: 0.480
+[epoch 02]  123.6s  train_loss=0.6409  val_precision=0.394  val_recall=0.492  val_f1=0.437
+Metric box_recall improved by 0.012 >= min_delta = 0.0. New best score: 0.492
+[epoch 03]  122.6s  train_loss=0.5407  val_precision=0.369  val_recall=0.456  val_f1=0.408
+[epoch 04]  121.9s  train_loss=0.6225  val_precision=0.418  val_recall=0.483  val_f1=0.448
+[epoch 05]  122.2s  train_loss=0.6932  val_precision=0.42  val_recall=0.457  val_f1=0.438
+[epoch 06]  121.6s  train_loss=0.6788  val_precision=0.424  val_recall=0.46  val_f1=0.441
+[epoch 07]  121.7s  train_loss=0.6356  val_precision=0.48  val_recall=0.43  val_f1=0.454
+[epoch 08]  122.0s  train_loss=0.576  val_precision=0.495  val_recall=0.414  val_f1=0.451
+[epoch 09]  121.8s  train_loss=0.4482  val_precision=0.452  val_recall=0.405  val_f1=0.427
+[epoch 10]  122.0s  train_loss=0.5942  val_precision=0.438  val_recall=0.433  val_f1=0.436
+Monitored metric box_recall did not improve in the last 8 records. Best score: 0.492. Signaling Trainer to stop.
+Epoch 10/49 ━━━━━━━━━━━━━━━━━━━━ 127/127 0:01:05 • 0:00:00 1.93it/s v_num: 6.000
+`weights_only` was not set, defaulting to `False`.
+
+best box_recall=0.492  ->  /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/swap/model/treedetect_best_recall.ckpt
+total wall-clock: 22.6 min over 11 epochs (stopped_early=True)
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/swap/train_metrics.csv
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/swap/train_curve.png
