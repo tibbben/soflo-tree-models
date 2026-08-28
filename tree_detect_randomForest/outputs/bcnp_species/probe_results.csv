@@ -1,0 +1,3 @@
+model,test_accuracy,base_rate,pine_precision,pine_recall,pine_f1,cypress_precision,cypress_recall,cypress_f1,palm_precision,palm_recall,palm_f1
+linear_probe,0.4226,0.7206,0.635,0.545,0.587,0.156,0.172,0.163,0.145,0.215,0.173
+finetune,0.5686,0.7206,0.666,0.778,0.718,0.229,0.15,0.181,0.283,0.202,0.236

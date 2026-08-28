@@ -1,5 +1,0 @@
-bucket,count,pct
-true miss (not detected),83,5.4
-"poor localization (0,0.30)",923,60.4
-"near-miss / localization [0.30,0.40)",337,22.0
-contested (pred used by neighbor),186,12.2
