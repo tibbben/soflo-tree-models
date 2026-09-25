@@ -4,6 +4,16 @@ The 10-minute talk on the Gables and BCNP detection work, given with Tim and Ahs
 Slides cover the pipeline, the evaluation problem, both sites' results, the AI
 workflow behind the code, and next steps. Speaker notes carry the spoken script.
 
+Three ways to open it:
+
+- **Google Slides (live copy, easiest to view or comment on):**
+  <https://docs.google.com/presentation/d/1EEbUr-Eii3muxtAhDQ0a5b3UgO4GtwO9DAlqex1V_iY/edit?usp=sharing>
+- **PowerPoint:** `ds_department_talk_2026-09.pptx` in this folder (speaker notes included)
+- **PDF:** `ds_department_talk_2026-09.pdf`, for reading without PowerPoint
+
+The committed `.pptx` is the source of truth for the numbers; the Slides copy is the
+version shown on the day and may carry later wording edits.
+
 | File | What it is |
 |---|---|
 | `ds_department_talk_2026-09.pptx` | the deck (16 slides, speaker notes in each slide's notes pane) |
