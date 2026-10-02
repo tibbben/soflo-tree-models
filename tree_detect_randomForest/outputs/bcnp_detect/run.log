@@ -1,0 +1,90 @@
+[stage1] building resampled, plot-masked tiles from 8 clean plots ...
+         target GSD 10 cm/px  patch 400px (40 m)  box=DBH-allometry clip(1.2+0.09*DBH,1.5,6.0) m
+   plot_17_3 [train] alive= 3678 boxes= 3678 dropped(nodata=0,tiny=0)  eff 10.0 cm/px
+Image shape is 3, assuming this is channels last, converting to channels first
+   plot_1_1  [train] alive= 2204 boxes= 2204 dropped(nodata=0,tiny=0)  eff 10.0 cm/px
+Image shape is 3, assuming this is channels last, converting to channels first
+   plot_3_1  [train] alive= 2223 boxes= 2216 dropped(nodata=7,tiny=0)  eff 10.0 cm/px
+Image shape is 3, assuming this is channels last, converting to channels first
+   plot_9_3  [test ] alive= 2576 boxes= 2576 dropped(nodata=0,tiny=0)  eff 10.0 cm/px
+Image shape is 3, assuming this is channels last, converting to channels first
+   plot_12_1 [test ] alive= 1538 boxes= 1538 dropped(nodata=0,tiny=0)  eff 10.0 cm/px
+Image shape is 3, assuming this is channels last, converting to channels first
+   plot_10_3 [train] alive= 2678 boxes= 2671 dropped(nodata=7,tiny=0)  eff 10.0 cm/px
+Image shape is 3, assuming this is channels last, converting to channels first
+   plot_6_2  [train] alive= 2995 boxes= 2966 dropped(nodata=29,tiny=0)  eff 10.0 cm/px
+Image shape is 3, assuming this is channels last, converting to channels first
+   plot_18_2 [train] alive= 2418 boxes= 2404 dropped(nodata=14,tiny=0)  eff 10.0 cm/px
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Image shape is 3, assuming this is channels last, converting to channels first
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_detect/label_counts.csv
+===== STAGE 1 — detection labels (ALIVE trees, resampled+masked) =====
+  train: 6 plots  boxes=16139  tiles=148  plots=['plot_17_3', 'plot_1_1', 'plot_3_1', 'plot_10_3', 'plot_6_2', 'plot_18_2']
+  test : 2 plots  boxes= 4114  tiles=49  plots=['plot_9_3', 'plot_12_1']
+  TOTAL alive=20310  boxes kept=20253  dropped=57 (0.3% under nodata/tiny)
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_detect/label_counts.png
+[stage3] train from BASE release  device=mps max_epochs=50 batch=2 patience=8 monitor=box_recall(max) val=test-plots @ IoU 0.4
+┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃   ┃ Name                    ┃ Type                  ┃ Params ┃ Mode  ┃ FLOPs ┃
+┡━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│ 0 │ model                   │ RetinaNetHub          │ 32.1 M │ eval  │     0 │
+│ 1 │ iou_metric              │ IntersectionOverUnion │      0 │ train │     0 │
+│ 2 │ mAP_metric              │ MeanAveragePrecision  │      0 │ train │     0 │
+│ 3 │ empty_frame_accuracy    │ BinaryAccuracy        │      0 │ train │     0 │
+│ 4 │ precision_recall_metric │ RecallPrecision       │      0 │ train │     0 │
+└───┴─────────────────────────┴───────────────────────┴────────┴───────┴───────┘
+Trainable params: 31.9 M                                                        
+Non-trainable params: 222 K                                                     
+Total params: 32.1 M                                                            
+Total estimated model params size (MB): 128.592                                 
+Modules in train mode: 4                                                        
+Modules in eval mode: 202                                                       
+Total FLOPs: 0                                                                  
+   [epoch 00]  117.1s train_loss=0.9027 val_prec=0.138 val_recall=0.049 val_f1=0.0723
+Metric box_recall improved. New best score: 0.049
+   [epoch 01]   62.2s train_loss=0.8788 val_prec=0.151 val_recall=0.043 val_f1=0.0665
+   [epoch 02]   61.7s train_loss=0.8748 val_prec=0.131 val_recall=0.045 val_f1=0.0668
+   [epoch 03]   60.9s train_loss=0.9292 val_prec=0.135 val_recall=0.041 val_f1=0.063
+   [epoch 04]   60.8s train_loss=0.7707 val_prec=0.158 val_recall=0.048 val_f1=0.0739
+   [epoch 05]   60.4s train_loss=0.8861 val_prec=0.144 val_recall=0.047 val_f1=0.0704
+   [epoch 06]   61.5s train_loss=0.9834 val_prec=0.161 val_recall=0.04 val_f1=0.0635
+   [epoch 07]   60.0s train_loss=0.9336 val_prec=0.153 val_recall=0.048 val_f1=0.0732
+   [epoch 08]   60.3s train_loss=0.6874 val_prec=0.134 val_recall=0.038 val_f1=0.0598
+Monitored metric box_recall did not improve in the last 8 records. Best score: 0.049. Signaling Trainer to stop.
+Epoch 8/49 ━━━━━━━━━━━━━━━━━━━━━━ 74/74 0:00:44 • 0:00:00 1.66it/s v_num: 19.000
+`weights_only` was not set, defaulting to `False`.
+[stage3] best box_recall=0.049  (610s, 9 epochs, stopped_early=True)
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_detect/train_curve.png
+[stage4] eval with checkpoint: bcnp_best_recall.ckpt
+[stage4] model.score_thresh set to 0.1 (head default 0.30 was zeroing preds)
+952 predictions in overlapping windows, applying non-max suppression
+616 predictions kept after non-max suppression
+908 predictions in overlapping windows, applying non-max suppression
+589 predictions kept after non-max suppression
+===== STAGE 4 — held-out eval (clipped to valid pixels) =====
+plot         IoU  pred census    TP   prec  recall     F1
+---------------------------------------------------------
+plot_9_3     0.4   616   2576    90  0.146   0.035  0.056
+plot_9_3     0.3   616   2576   177  0.287   0.069  0.111
+plot_12_1    0.4   589   1533    69  0.117   0.045  0.065
+plot_12_1    0.3   589   1533   116  0.197   0.076  0.109
+ALL          0.4  1205   4109   159  0.132   0.039  0.060
+[stage4] FN analysis @ IoU 0.4 (3950 missed census trees):
+    true miss (blind)               37  ( 0.9%)
+    poor localization (0,0.30)    2450  (62.0%)
+    near-miss [0.30,0.40)          805  (20.4%)
+    -> blindness=37 (1%)  box-tightness=3913 (99%)
+ALL          0.3  1205   4109   293  0.243   0.071  0.110
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_detect/eval_metrics.csv
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_detect/fn_buckets.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_detect/overlay_plot_9_3.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_detect/overlay_plot_12_1.png
+========================= VERDICT =========================
+IoU 0.4:  recall  3.9%  precision 13.2%  F1  6.0%   (pred 1205 vs census 4109, TP 159)
+IoU 0.3:  recall  7.1%  precision 24.3%  F1 11.0%   (pred 1205 vs census 4109, TP 293)
+dominant failure: BOX-TIGHTNESS — most misses ARE detected but boxed too loosely for IoU 0.4
+  blindness 37 (1%)  vs  box-tightness 3913 (99%)  of 3950 FNs
+NOTE: first from-base run; census is exhaustive only inside each 100 m plot
+polygon, so eval is clipped there. Recall here is an honest wetland-canopy
+number, not directly comparable to the Gables ortho.
+===========================================================

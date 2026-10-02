@@ -1,0 +1,82 @@
+[stage1] building point tiles (lazy windowed reads, cache to disk) ...
+         tile 320px @ 50% overlap (stride 160px), sigma 8px, native GSD, cap 500 train tiles/plot
+   plot_17_3 [train] census= 3678 tiles= 500 tile_trees= 7699  gsd 1.55cm
+   plot_1_1  [train] census= 2204 tiles= 500 tile_trees= 5213  gsd 1.65cm
+   plot_3_1  [train] census= 2223 tiles= 500 tile_trees= 4935  gsd 1.59cm
+   plot_9_3  [test ] census= 2576 tiles= 992 tile_trees= 9695  gsd 1.68cm
+   plot_12_1 [test ] census= 1538 tiles= 695 tile_trees= 5387  gsd 1.70cm
+   plot_10_3 [train] census= 2678 tiles= 500 tile_trees= 5760  gsd 1.68cm
+   plot_6_2  [train] census= 2995 tiles= 500 tile_trees= 7604  gsd 1.67cm
+   plot_18_2 [train] census= 2418 tiles= 500 tile_trees= 4870  gsd 1.50cm
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_peak/tile_counts.csv
+
+===== STAGE 1 — point-supervised tiles =====
+  train: 6 plots  tiles= 3000  tile_trees= 36081  plots=['plot_17_3', 'plot_1_1', 'plot_3_1', 'plot_10_3', 'plot_6_2', 'plot_18_2']
+  test : 2 plots  tiles= 1687  tile_trees= 15082  plots=['plot_9_3', 'plot_12_1']
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_peak/tile_counts.png
+
+[stage3] train U-Net(resnet18)  device=mps epochs=50 batch=4 workers=0 lr=0.001 loss=focal train_tiles=3000 val_tiles=1687
+   [epoch 00]  122.0s train_loss=213.854048 val_loss=10.751899 peakRAM=1.0GB
+   [epoch 01]  121.0s train_loss=7.451951 val_loss=6.114376 peakRAM=1.0GB
+   [epoch 02]  120.7s train_loss=4.986211 val_loss=4.802998 peakRAM=1.0GB
+   [epoch 03]  120.7s train_loss=4.458529 val_loss=4.335977 peakRAM=1.0GB
+   [epoch 04]  117.9s train_loss=4.329806 val_loss=4.353111 peakRAM=1.0GB
+   [epoch 05]  117.8s train_loss=4.285618 val_loss=4.301987 peakRAM=1.0GB
+   [epoch 06]  117.7s train_loss=4.279143 val_loss=4.335893 peakRAM=1.0GB
+   [epoch 07]  117.9s train_loss=4.274600 val_loss=4.251673 peakRAM=1.0GB
+   [epoch 08]  118.0s train_loss=4.269910 val_loss=4.250728 peakRAM=1.0GB
+   [epoch 09]  118.0s train_loss=4.276217 val_loss=4.277883 peakRAM=1.0GB
+   [epoch 10]  117.8s train_loss=4.278028 val_loss=4.266352 peakRAM=1.1GB
+   [epoch 11]  118.7s train_loss=4.274121 val_loss=4.243758 peakRAM=1.1GB
+   [epoch 12]  118.0s train_loss=4.271695 val_loss=4.249225 peakRAM=1.1GB
+   [epoch 13]  118.8s train_loss=4.281253 val_loss=4.246976 peakRAM=1.1GB
+   [epoch 14]  117.5s train_loss=4.281138 val_loss=4.249463 peakRAM=1.1GB
+   [epoch 15]  117.0s train_loss=4.271238 val_loss=4.243233 peakRAM=1.1GB
+[stage3] training stopped at epoch 15 (val loss converged ~4.24; still crawling by <1e-3 so early-stop had not fired). best checkpoint = peak_best.pt.
+
+[stage4] eval with peak_best.pt  eval_conf=auto  radii=[1.0, 2.0]
+   plot_9_3: 17990 raw local maxima (>=0.02), score max 0.024
+   plot_12_1: 10977 raw local maxima (>=0.02), score max 0.024
+   sweep conf=0.02 n_pred= 7527 P=0.111 R=0.203 F1=0.143
+   sweep conf=0.05 n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.1  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.15 n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.2  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.3  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.4  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.5  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.6  n_pred=    0 P=0.000 R=0.000 F1=0.000
+   sweep conf=0.7  n_pred=    0 P=0.000 R=0.000 F1=0.000
+[stage4] auto eval_conf = 0.02 (best sweep F1=0.143)
+
+===== STAGE 4 — distance eval (peaks vs census, conf=0.02) =====
+plot        radius  pred census    TP   prec  recall     F1
+-----------------------------------------------------------
+plot_9_3       1.0  4223   2576   429  0.102   0.167  0.126
+plot_9_3       2.0  4223   2576   525  0.124   0.204  0.154
+plot_12_1      1.0  3304   1538   231  0.070   0.150  0.095
+plot_12_1      2.0  3304   1538   309  0.094   0.201  0.128
+ALL            1.0  7527   4114   660  0.088   0.160  0.113
+ALL            2.0  7527   4114   834  0.111   0.203  0.143
+
+  random-scatter baseline (same counts, uniform in plot):
+    radius 1.0 m: P=0.077 R=0.141 F1=0.100
+    radius 2.0 m: P=0.108 R=0.198 F1=0.140
+
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/outputs/bcnp_peak/eval_metrics.csv
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_peak/pr_sweep.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_peak/heatmap_tile.png
+wrote /Users/rayanarya/Documents/GitHub/soflo-tree-models/treedetect/reports/bcnp_peak/peaks_overlay_plot_9_3.png
+
+========================= VERDICT =========================
+radius 1.0 m:  MODEL recall 16.0% precision  8.8% F1 11.3%  |  RANDOM recall 14.1% precision  7.7%  (edge +1.9 pts)  [pred 7527 vs census 4114]
+radius 2.0 m:  MODEL recall 20.3% precision 11.1% F1 14.3%  |  RANDOM recall 19.8% precision 10.8%  (edge +0.4 pts)  [pred 7527 vs census 4114]
+
+box-detection baseline (s14, IoU 0.4 recall): 3.9%  -- NOT comparable: IoU vs distance@2m, which is lenient at this tree density.
+==> vs the honest floor (random scatter): model BEATS random at 1.0 m (recall 16.0% vs 14.1%, precision 8.8% vs 7.7%).
+    The headline 'beats 3.9%' is mostly the loose 2 m tolerance; real signal is the
+    small edge over random at 1 m. Pipeline works end-to-end; model is a weak first pass
+    (undertrained, low peak confidence ~0.02). Next: train to convergence, tighter NMS.
+peak RAM this process: 0.9 GB
+NOTE: distance eval (not IoU); census exhaustive only inside each 100 m plot.
+===========================================================

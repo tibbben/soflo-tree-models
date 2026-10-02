@@ -1,0 +1,200 @@
+# ── treedetect configuration ───────────────────────────────────────────────
+# INPUT data is NOT stored in the repo. It is resolved under a data root, in order:
+#   env SOFLO_DATA_ROOT  >  `data_root` below  >  error (see .env.example).
+# OUTPUT paths (outputs_dir / reports_dir, near the bottom) stay repo-relative.
+
+# Optional fallback for the data root. Prefer SOFLO_DATA_ROOT (in .env). Leave
+# empty to require the env var; or set an absolute path, e.g. /path/to/soflo_data
+data_root:
+
+inputs:                          # paths are relative to the data root (above)
+  orthomosaic:   umgables_2025_drone_survey_5cm.tif     # drone RGB ortho, 5 cm/px, EPSG:32617
+  points:        um_gables_trees.geojson                # botanical inventory (ground truth)
+  segmentation:  um_gables_tree_segmentation.geojson    # prior-model crown polygons (reference)
+  detection:     um_gables_tree_detection.geojson       # prior-model boxes (reference only)
+  metadata:      "GDSC_metadata(Metadata).csv"          # GDSC tile metadata catalog
+
+crs: "EPSG:32617"            # UTM 17N — everything is already in this, in metres
+
+# ── Clean evaluation region (s11) — exhaustively-labeled honest test set ─────
+# We proved the inventory undercounts trees (~94% of "false positives" are real),
+# so inventory-based eval is unreliable. This carves ONE small square inside the NE
+# test AOI where EVERY tree gets labeled by hand (in QGIS) to serve as a trustworthy
+# ruler. size_m tunes the square; leave bounds null to auto-pick a mixed-land-cover
+# spot, or set [minx,miny,maxx,maxy] in EPSG:32617 (read off QGIS) to place it yourself.
+# IMPORTANT: keep this region's trees OUT of any future training set.
+clean_eval:
+  size_m: 250
+  bounds: null                 # [minx, miny, maxx, maxy] in CRS units; null = auto
+  iou_eval: [0.4, 0.3]         # thresholds for the honest precision/recall report
+
+# ── FP diagnosis (s12) — split audited real-tree false positives into ───────
+# localization failures (inventory HAS the tree, our box just missed it) vs genuine
+# inventory gaps (unrecorded tree). An FP whose center is within dist_thr_m of an
+# inventory point (or overlaps an inventory box) is a localization case.
+fp_diag:
+  dist_thr_m: 3.5              # FP center within this of an inventory point => localization
+  sensitivity_m: [2.0, 3.0, 4.0]
+
+labels:
+  tree_flag_field: point_is_tree   # keep only rows where this == "Yes"
+  tree_flag_value: "Yes"
+  species_field:   tax_genus_species
+  fallback_box_m:  null            # null = auto (median clean-crown size); or set e.g. 6.9
+
+# ── Species classification prep (s07) — labels only, no training ────────────
+# Collapse the botanical taxonomy into a few coarse target classes for a future
+# multi-class detector / crop classifier. We key the map on tax_FAMILY rather
+# than tax_genus_species because the three target classes ARE families (palm =
+# Arecaceae, pine = Pinaceae, cypress = Cupressaceae): one family entry captures
+# every palm genus (Sabal, Roystonea, Cocos, …) with no enumeration, and a
+# cross-check confirmed every Pinus/Taxodium species already sits in the matching
+# family (0 mismatches). Any family not listed -> `other`; trees with no usable
+# family value -> `missing_class` (excluded from the trainable classes, reported
+# as % missing). source_field is joined onto the s01 boxes by point id (pt_id).
+species:
+  source_field:  tax_family
+  fallback_field: tax_genus_species  # only used for reporting/auditing
+  missing_class: unknown             # no usable family -> reported as missing, not trained
+  target_classes: [palm, pine, cypress, other]
+  species_map:                       # family -> target class; unlisted families -> other
+    Arecaceae:    palm
+    Pinaceae:     pine
+    Cupressaceae: cypress
+
+# Area-of-interest split. Two ways to define each AOI:
+#   bbox_fraction: [fx, fy] carves a corner of the data bounding box, OR
+#   bounds: [minx, miny, maxx, maxy] in CRS units (read these off QGIS for precision).
+#
+# Diagnostic: set swap_aois: true (or env TD_SWAP_AOIS=1) to EXCHANGE which region
+# is train vs test without moving the boundaries. A swapped run auto-redirects its
+# outputs to outputs/swap and reports/swap (override with env TD_OUT_SUBDIR) so it
+# never overwrites the main run.
+swap_aois: false
+aois:
+  train:                       # bottom-left in the Gables ortho
+    corner: bottom_left
+    bbox_fraction: [0.42, 0.42]
+    bounds: null
+  test:                        # top-right
+    corner: top_right
+    bbox_fraction: [0.42, 0.42]
+    bounds: null
+
+tiles:
+  patch_size_m: 40.0           # tile footprint on the ground; pixels computed from GSD
+  patch_overlap: 0.10          # fractional overlap between adjacent tiles
+  min_boxes_per_tile: 1        # drop empty tiles
+
+train:
+  epochs: 50                   # max epochs; early stopping usually halts sooner
+  batch_size: 2                # conservative for 18 GB unified memory (MPS); bump if it fits
+  score_thresh: 0.30           # confidence cutoff at inference
+  iou_eval: 0.4                # IoU threshold for matching in evaluation
+  early_stop_patience: 8       # stop after N epochs with no val-recall improvement
+  val_accuracy_interval: 1     # compute val precision/recall every epoch (needed for early stop)
+
+# ── BCNP first detection run (s14) — separate domain from Gables ─────────────
+# Big Cypress wetland plots. Native ortho GSD is ~1.6 cm/px; the DeepForest base
+# release expects ~10 cm/px, so we RESAMPLE each plot to target_gsd_m before
+# tiling/detection (resolution is a config param — see the Gables downsample
+# experiment: matching train-domain GSD matters). Census points are plot-local
+# metres georeferenced from each plot polygon's SW corner, reprojected to the tif
+# CRS (EPSG:32617). Boxes are sized per-crown from DBH allometry with a fixed
+# fallback (NOT the Gables 7 m box). Each raster is masked to its 100 m plot
+# polygon (census is exhaustive only inside it) plus the alpha band, so nodata /
+# unlabeled margin never becomes a phantom false negative.
+bcnp_detect:
+  data_subdir: bcnp                     # plots + census live under ~/Downloads/bcnp
+  clean_plots: [plot_17_3, plot_1_1, plot_3_1, plot_9_3, plot_12_1, plot_10_3, plot_6_2, plot_18_2]
+  test_plots:  [plot_9_3, plot_12_1]    # held out whole; both contain trees
+  target_gsd_m: 0.10                    # resample plots to ~10 cm/px for detection
+  crown_a_m:   1.2                      # crown_diam_m = clip(a + b*DBH_cm, min, max)
+  crown_b_m:   0.09
+  crown_min_m: 1.5
+  crown_max_m: 6.0
+  fallback_box_m: 3.0                   # used only when DBH is missing
+  patch_size_m: 40.0                    # tile footprint on the ground
+  patch_overlap: 0.10
+  min_boxes_per_tile: 1
+  epochs: 50
+  batch_size: 2
+  early_stop_patience: 8
+  score_thresh: 0.10                    # this first from-base model is low-confidence
+                                        # (raw detections top out ~0.25); 0.30 zeroes it out
+  iou_eval: [0.4, 0.3]
+
+# ── BCNP point-based peak-finding detection (s15) — Ventura-style heatmap ────
+# Ground truth is POINTS, so we supervise on a Gaussian confidence heatmap and
+# match by DISTANCE, not IoU (no box detector). Tiles are cut at NATIVE resolution
+# (~1.6 cm/px), 320x320 @ 50% overlap per the USC NAIP paper. A light resnet18
+# U-Net regresses the heatmap; trees = local peaks (NMS by min-distance). Frugal
+# for an 18 GB Mac: lazy windowed reads, tiles cached to disk (gitignored), never
+# whole tifs in RAM; train tiles capped/plot to keep the run tractable.
+bcnp_peak:
+  data_subdir: bcnp
+  clean_plots: [plot_17_3, plot_1_1, plot_3_1, plot_9_3, plot_12_1, plot_10_3, plot_6_2, plot_18_2]
+  test_plots:  [plot_9_3, plot_12_1]
+  tile_px: 320
+  overlap: 0.5                          # stride = tile_px*(1-overlap) = 160
+  sigma_px: 8                           # Gaussian target sigma (native px); tunable
+  min_valid_frac: 0.6                   # tile must be >=60% inside polygon & non-nodata
+  max_train_tiles_per_plot: 500         # frugality cap (test uncapped for honest eval)
+  min_trees_per_tile: 1
+  loss: focal                           # focal (CenterNet penalty-reduced) | wmse
+  pos_weight: 20.0                      # used only when loss=wmse
+  backbone: resnet18
+  batch_size: 4
+  num_workers: 0                        # 0 = load in main process: safest + most frugal
+                                        # on an 18 GB Mac (no spawn workers duplicating data)
+  lr: 0.001
+  epochs: 50
+  early_stop_patience: 8
+  peak_min_dist_m: 0.8                  # NMS min separation between predicted peaks
+  eval_conf: auto                       # headline threshold; "auto" = best-F1 from the
+                                        # sweep (the model's confidence scale is unknown
+                                        # a priori), or set a fixed number
+  conf_sweep: [0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+  match_radii_m: [1.0, 2.0]            # distance tolerances for P/R/F1
+
+# ── BCNP YOLO detection (s16) — partner's Gables approach, adapted + honest eval ─
+# Adopts the PORTABLE wins from origin/ahsan's YOLO pipeline (constant ground-
+# footprint chips, fixed-size boxes, background negatives, strong aerial aug, long
+# training) but re-tuned for BCNP's smaller/denser wetland crowns and scored with
+# OUR honest protocol (distance match at TIGHT radii + a random-scatter floor),
+# NOT their lenient 5 m radius. Frugal for an 18 GB Mac: lazy windowed reads, chips
+# cached to disk (gitignored), cache=False (no images in RAM), batch 4, workers 2.
+# Split by PLOT; test = plot_9_3 + plot_12_1 (same as s15, so it is comparable).
+bcnp_yolo:
+  data_subdir: bcnp
+  train_plots: [plot_17_3, plot_1_1, plot_3_1, plot_10_3, plot_18_2]  # YOLO train
+  val_plot:    plot_6_2            # YOLO val + hyperparameter selection (never test)
+  test_plots:  [plot_9_3, plot_12_1]                                   # honest held-out
+  model: yolo26s.pt               # partner's champion; falls back to yolov8s.pt
+  out_size: 640                   # every chip emitted at this px, any source GSD
+  imgsz: 640                      # train/detect input (modest for 18 GB RAM)
+  overlap_frac: 0.5               # tile overlap fraction (stride = ground_m*(1-this))
+  bg_ratio: 3                     # keep 1 background (no-tree) chip per N tree chips
+  # constant-input resolution sweep: ground_m = gsd*out_size, so gsd is the variable
+  gsd_sweep_m: [0.03, 0.05]       # BCNP crowns are smaller than Gables -> test finer
+  sweep_box_radius_m: 2.0         # fixed box while sweeping GSD
+  box_sweep_radius_m: [1.5, 2.0, 2.5, 3.0]  # inverted-U box sweep at the best GSD
+  select_radius_m: 1.5            # match radius used to PICK the best sweep config
+  # training
+  batch: 4                        # raise to 8 only if RAM allows
+  workers: 2
+  amp: false                      # AMP can be unstable on MPS
+  cache: false                    # never cache images in RAM
+  sweep_epochs: 15                # enough to RANK configs (COCO-pretrained backbone)
+  sweep_patience: 6
+  final_epochs: 120               # patience usually stops well before this
+  final_patience: 40
+  aug: {degrees: 180.0, flipud: 0.5, fliplr: 0.5, scale: 0.6, mixup: 0.1}
+  # honest eval
+  peak_min_dist_m: 0.8            # global NMS on detections before matching
+  match_radii_m: [1.0, 1.5]       # TIGHT radii (not their 5 m)
+  eval_conf: auto                 # headline threshold = best-F1 from the sweep
+  conf_sweep: [0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+
+outputs_dir: outputs
+reports_dir: reports

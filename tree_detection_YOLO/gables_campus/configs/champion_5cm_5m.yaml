@@ -1,0 +1,36 @@
+# Champion: YOLO26, 5cm survey, fixed-5m boxes, augmentation.
+# Evaluation-region F1 0.660 @ conf 0.15 (P 0.647 / R 0.674).
+name: champion_5cm_5m
+
+data:
+  survey: ./download/umgables_2025/umgables_2025_drone_survey_5cm.tif
+  survey_gtregion: ./download/umgables_2025/umgables_2025_drone_survey_5cm_gtregion.tif
+  trees: ./download/um_gables_trees.geojson
+  out_size: 640        # every tile emitted at this size, whatever the source res
+  ground_m: 32.0       # every tile covers this much ground
+  radius_m: 5.0        # fixed crown box radius for every tree
+  bg_ratio: 3          # keep 1 background tile per N tree tiles
+
+model: yolo26s.pt
+
+# passed straight through to model.train(**train) — nothing is added implicitly,
+# so anything absent here keeps the framework default
+train:
+  data: ./yolo_dataset/dataset.yaml
+  epochs: 200
+  patience: 50
+  imgsz: 1280
+  batch: 16
+  device: 0
+  amp: true
+  degrees: 180.0       # aerial imagery has no canonical orientation
+  flipud: 0.5
+  fliplr: 0.5
+  scale: 0.6
+  mixup: 0.1
+  project: ./runs
+  name: train1
+
+detect:
+  imgsz: 1280
+  nms_iou: 0.5

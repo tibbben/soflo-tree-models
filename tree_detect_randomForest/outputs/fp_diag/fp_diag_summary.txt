@@ -1,0 +1,30 @@
+
+===== FP DIAGNOSIS (real-tree FPs, n=94) — dist_thr=3.5 m =====
+(a) INVENTORY GAP  (no inventory tree nearby)      :  43  (45.7%)
+(b) LOCALIZATION   (inventory tree nearby)         :  51  (54.3%)
+      of which the nearby inventory tree is UNMATCHED (double-counted as FP+FN): 21
+
+sensitivity of the (a)/(b) split to the distance cutoff:
+   cutoff | combined (overlap OR <cut) | distance-only (<cut)
+          |      gap (a)      loc (b) |   gap (a)   loc (b)
+    2.0 m |           43           51 |        90         4
+    3.0 m |           43           51 |        81        13
+    3.5 m |           43           51 |        73        21
+    4.0 m |           43           51 |        69        25
+NOT a knife-edge: localization is decided by OVERLAP — all 51 localization FPs overlap an inventory box (best_iou>0), independent of the distance cutoff.
+  Every gap-bucket FP sits >= 7.9 m from any inventory tree (median 29 m), so moving the distance cutoff anywhere below
+  ~8 m reclassifies nothing — the 43/51 split holds.
+
+----- double-counting cross-check -----
+unmatched inventory trees (FNs) total: 1529
+real-tree FPs sitting within 3.5 m of an UNMATCHED inventory tree: 21
+  -> 21 distinct FN trees where ONE loose box created BOTH an FP and an FN (in the audited sample of 94)
+
+----- corrected precision @IoU0.4 (tp=682 / preds=2162) -----
+original (no credit)                       : 0.315
+credit ALL 94 real-tree FPs as new TP       : 0.359   (extrapolated 94% x 1480 FPs -> ~0.959)
+credit ONLY 43 inventory-gap FPs as new TP : 0.335   (extrapolated 43% x 1480 FPs -> ~0.610)
+NOTE: the earlier ~0.96 estimate assumed ALL real-tree FPs were inventory gaps.
+      This step measures the gap fraction at 43/94 = 46%, so the
+      honest corrected precision is the 'gap-only' column, not credit-all.
+===============================================================

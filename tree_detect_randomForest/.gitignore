@@ -1,0 +1,51 @@
+# large rasters / tiles — keep out of git (commit the labels, not the imagery)
+data/*.tif
+data/*.tiff
+outputs/tiles/
+outputs/model/
+# same heavy artifacts for tagged runs (e.g. outputs/swap/tiles, outputs/swap/model)
+outputs/*/tiles/
+outputs/*/model/
+# label file is a per-run duplicate of the committed outputs/detection_boxes.geojson
+outputs/*/detection_boxes.geojson
+# model weights — never commit (code + metrics + figures only)
+*.ckpt
+*.pt
+# species probe crop cache (regenerable from the ortho; commit metrics + figures only)
+outputs/species_probe/crop_cache.npz
+# resampled rasters from the recall experiments (regenerable; large)
+outputs/recall_exp/*.tif
+# audit individual crop folders (regenerable; many small PNGs) — commit grids + CSVs only
+outputs/audit/fp_crops/
+outputs/audit/fn_crops/
+# raw Apple Numbers working files — the parsed CSV is committed instead
+outputs/audit/*.numbers
+# clipped clean-eval raster (large; regenerable from the committed test clip)
+outputs/clean_eval/*.tif
+# BCNP species probe crop cache (regenerable from the ortho; commit counts + figures only)
+outputs/bcnp_species/crop_cache.npz
+# BCNP detection: resampled clips/tiles + checkpoints covered by outputs/*/tiles + *.ckpt;
+# per-plot prediction geojsons are regenerable from the checkpoint (commit metrics + figures)
+outputs/bcnp_detect/predicted_*.geojson
+# BCNP YOLO (s16): cached chips + ultralytics run dirs (weights/plots); regenerable.
+# Downloaded COCO weights (yolo*.pt) are covered by the *.pt rule above.
+outputs/bcnp_yolo/chips/
+outputs/bcnp_yolo/runs/
+# s17 cached model predictions (regenerable from the s16 weights; re-score only)
+outputs/bcnp_yolo/test_raw_predictions.npz
+
+# the source geojsons can be large too; kept out of git (stored in ~/Downloads)
+data/*.geojson
+
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
+
+# local virtualenv + Lightning training logs
+.venv/
+version_*/
+lightning_logs/
+
+# local data-root config (never commit; ships as .env.example instead)
+.env

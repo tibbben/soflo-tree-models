@@ -1,0 +1,40 @@
+
+===== RE-SCORE (inventory-gap corrected precision) =====
+source: fp_audit_completed.csv
+audited FP rows: 100  (labeled 100, blank 0)
+  real_tree = 94
+  error     = 3
+  unsure    = 3
+
+original precision  @IoU0.4 : 0.3154   (tp 682 / 2162 preds)
+corrected precision (audit) : 0.3589   (+94 audited real trees credited as TP)
+
+extrapolated campus-wide (if the 94% real_tree rate holds across all 1480 FPs):
+  est. real trees among all FPs ~ 1391
+  est. corrected precision       ~ 0.959
+
+merged / multi-crown evidence: 17 of 94 real_tree tags have notes describing a box over multiple crowns
+    #7: multiple in one
+    #12: multiple in one
+    #20: multiple in one
+    #22: multiple in one
+    #25: multiple in one
+    #26: multiple in one
+    #27: multiple in one
+    #30: multiple in one
+=========================================================
+
+sample rows per tag (fp_id, best_iou, note):
+  [real_tree]
+    #1  best_iou=0.0  note=''
+    #2  best_iou=0.0  note=''
+    #3  best_iou=0.244  note=''
+    #4  best_iou=0.0  note=''
+  [error]
+    #63  best_iou=0.0  note='shadow of a tree'
+    #65  best_iou=0.0  note='shadow of a tree'
+    #82  best_iou=0.0  note='bush'
+  [unsure]
+    #6  best_iou=0.0  note=''
+    #19  best_iou=0.2  note=''
+    #38  best_iou=0.0  note=''

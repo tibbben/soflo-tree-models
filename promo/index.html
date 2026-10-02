@@ -1,0 +1,357 @@
+<!doctype html>
+<html>
+<head>
+  <link rel="stylesheet" href="common/reveal/reveal.css">
+  <link rel="stylesheet" href="common/reveal/theme/white.css">
+  <link rel="stylesheet" href="common/css/overrides.css">
+  <script src="common/js/print.js"></script>
+  <title>AI Driven Tree Detection</title>
+  <meta charset="UTF-8">
+</head>
+<body>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ***
+            * Title Slide
+            * -->
+
+      <section data-transition="fade" data-transition-speed="slow" data-background-image="common/assets/img/splash.png">
+        <div class="template-fade-background"></div>
+        <div style="font-size: 80%; text-align: left; z-index: 20;">
+          <div class="template-title" style="margin-top: 70px;"><div style="font-size: 1.5em !important; background-color: rgba(255,255,255,0.85); border-radius: 13px; padding: 8px; display: block;">AI-driven Tree Detection in South Florida:<div style="font-size: 0.6em !important;">Benchmarks and Fine Tuned models for YOLO and Deep Forest</div></div></div>
+        </div>
+        <div style="padding: 23px; margin: 0px auto 0px auto; width: 50%; font-size: 60%; display: inline-block; background-color: rgba(255,255,255,0.85);border-radius: 13px; z-index: 20;">
+          Muhammad Ahsan Saleem <a href="mailto:mas8099@miami.edu" class="template-email-link">mas8099@miami.edu</a><br>
+          Rayan Arya - <a href="mailto:rxa1388@miami.edu" class="template-email-link">rxa1388@miami.edu</a><br>
+          Timothy B Norris, PhD - <a href="mailto:tnorris@miami.edu" class="template-email-link">tnorris@miami.edu</a>
+        </div>
+        <div style="padding: 23px; margin: 100px auto 0px auto; width: 75%; font-size: 60%; display: inline-block; background-color: rgba(255,255,255,0.85);border-radius: 13px; z-index: 20;">
+          University of Miami Frost Institute for Data Science and Computing Seminar - October 13 2026
+        </div>
+        <div style="z-index: 20;">
+          <div style="margin-top: 13px;"><img src="common/assets/img/UM-idsc.png" style="max-width: 310px; background-color: rgba(255,255,255,0.85); border-radius: 13px; padding: 16px;">&nbsp;<img src="common/assets/img/UM-library.png" style="max-width: 310px; margin-top: -23px; background-color: rgba(255,255,255,0.85); border-radius: 13px; padding: 16px;"></div>
+        </div>
+      </section>
+
+      <section data-transition="fade" data-transition-speed="slow" data-background-image="common/assets/img/splash.png"></section>
+
+      <!-- ***
+            * image with no title slide template
+            * -->
+      <section data-transition="fade" data-background-image="common/assets/img/">
+      </section>
+
+      <!-- ***
+            * template for slide with two columns
+            * -->
+      <section data-transition="fade">
+        <div class="template-container">
+          <div class="template-header"><span>the byline at the top right</span></div>
+          <div class="template-content-container">
+
+            <div class="template-content">
+
+              <div style="display: inline-block; width: 80%">
+
+                <!-- column right (appears on click) -->
+                <div style="float: right;" class="fragment" data-fragment-index="1">
+                </div>
+
+                <!-- column left -->
+                <div style="float: left;">
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="template-citation">
+            <ul style="list-style: none;">
+              <li>A citation (preferably APA 7th)</li>
+            </ul>
+          </div>
+          
+          <div class="template-footer"><table width=100%><tr><td background="common/assets/img/UM.jpg" height=80 width=98></td><td background="common/assets/img/bar.jpg"></td><td width=60></td></tr></table></div>
+       </div>
+      </section>
+
+      <!-- ***
+            * template for a slide with a list or outline
+            * -->
+      <section data-transition="fade">
+        <div class="template-container">
+          <div class="template-header"><span>an outline</span></div>
+          <div class="template-content-container">
+
+            <div class="template-content">
+
+              <div class="template-title">The outline</div>
+              <div>
+                <ul>
+                    <li><i>Item one</i></li>
+                    <li><i>Item two</i></li>
+                    <li><i>Item three</i></li>
+                    <li><i>Item four</i></li>
+                    <li><i>Item five</i></li>
+                </ul>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="template-citation"></div>
+          
+          <div class="template-footer"><table width=100%><tr><td background="common/assets/img/UM.jpg" height=80 width=98></td><td background="common/assets/img/bar.jpg"></td><td width=60></td></tr></table></div>
+       </div>
+      </section>
+
+      <!-- ***
+            * template for a slide iwth two columns of text
+            * -->
+      <section data-transition="fade">
+        <div class="template-container">
+          <div class="template-header"><span>two columns of text</span></div>
+          <div class="template-content-container">
+
+            <div class="template-content">
+
+              <div class="template-title" style="margin-bottom: 72px !important;">A good title</div>
+              <div class="template-element" style="display: block;">
+                <div style="display: inline-block; font-size: 85%; text-align: left;">
+                  <div style="float: left;">One line<br>second line<br>third line<br>fourth line</div>
+                  <div style="float: left; font-size: 550%; margin: 55px 42px 0 42px; font-family: courier new">}</div>
+                  <div style="float: right; font-size: 90%">One line<br>second line<br>third line<br>fourth line</div>
+                </div>
+                <br>
+                <div class="fragment" style="display: inline-block; font-size: 85%; font-weight: bold; text-align: left; margin-top: 42px; margin-left: 0px;">
+                  <div style="float: left; margin-right: 23px"><span style="margin-left: 220px; font-size: 200%;">/</span><br><span style="margin: 23px;">First outcome</span></div>
+                  <div style="float: right; margin-left: 83px"><span style="margin-left: 0px; font-size: 200%;">\</span><br><span style="margin: 23px;">Second outcome</span></div>
+                </div> 
+              </div>
+            </div>
+
+          </div>
+
+          <div class="template-citation"></div>
+          
+          <div class="template-footer"><table width=100%><tr><td background="common/assets/img/UM.jpg" height=80 width=98></td><td background="common/assets/img/bar.jpg"></td><td width=60></td></tr></table></div>
+       </div>
+      </section>
+
+      <!-- ***
+            * template for a slide with an image and a title
+            * -->
+      <section data-transition="fade">
+        <div class="template-container">
+          <div class="template-header"><span>image with title</span></div>
+          <div class="template-content-container">
+
+            <div class="template-content">
+              <div class="template-title" style="margin-bottom: 0px !important;">A good title</div>
+              <img src="common/assets/img/" style="max-width: 100% !important;">
+            </div>
+
+          </div>
+
+          <div class="template-citation">
+              APA 7th citation
+          </div>
+          
+          <div class="template-footer"><table width=100%><tr><td background="common/assets/img/UM.jpg" height=80 width=98></td><td background="common/assets/img/bar.jpg"></td><td width=60></td></tr></table></div>
+       </div>
+      </section>
+
+      <!-- ***
+            * Example data driven graph
+            * -->
+      <section data-transition="fade">
+        <div class="template-container">
+          <div class="template-header"><span>data sharing</span></div>
+          <div class="template-content-container">
+
+            <div class="template-content">
+
+              <div class="template-title">DCN Researcher Study 2018 (n=91)</div>
+              <div style="width: 90%;">
+                <canvas data-chart="bar" height=420 width=1000>        
+                  <!--
+                   {
+                   "data": {
+                    "labels": ["1.0 - 1.5","1.5 - 2.0","2.0 - 2.5","2.5 - 3.0","3.0 - 3.5","3.5 - 4.0","4.0 - 4.5", "4.5 - 5.0"],
+                    "datasets": [
+                     {
+                      "data": [0,0,0,4,9,12,8,2],
+                      "label": "DC Activities",
+                      "borderColor": "#222",
+                      "backgroundColor":"#ddd",
+                      "borderWidth": 1
+                     }
+                    ]
+                   },
+                   "options": { 
+                    "responsive": "true", 
+                    "mantainAspectRatio": "false",
+                    "title": { 
+                     "display": "true",
+                     "fontSize": 24,
+                     "fontColor": "#222",
+                     "text": "Data Curation Activities: Average Researcher Ratings of Importance", 
+                     "padding": 30
+                    }, 
+                    "legend": { 
+                     "position": "bottom", 
+                     "labels": { 
+                       "boxWidth": 13,
+                       "fontSize": 16
+                      }
+                     },
+                     "tooltips": {
+                     "labels": { "fontColor": "#333" }
+                    },
+                      "scales": {
+                       "yAxes": [{
+                        "id": "y-axis-1",
+                        "display": "true",
+                        "position": "left",
+                        "gridLines": {
+                         "color": "#fff",
+                         "zeroLineColor": "#222"
+                        },
+                        "ticks": {
+                         "fontSize": 16
+                        },
+                        "scaleLabel": {
+                         "display": "true",
+                         "labelString": "Count of DC Activities (n=35)",
+                         "fontColor": "#222",
+                         "fontSize": 16
+                        }
+                       }],
+                       "xAxes": [{
+                        "id": "x-axis-1",
+                        "display": "true",
+                        "gridLines": {
+                         "color": "#fff",
+                         "zeroLineColor": "#222"
+                        },
+                        "ticks": {
+                         "fontSize": 16
+                        }
+                       }]
+                      } 
+                     }
+                    }
+                  -->
+                </canvas>
+              </div>
+              <!-- <img src="common/assets/img/curationimportant.png"> -->
+
+            </div>
+
+          </div>
+
+          <div class="template-citation">
+              Johnston, L. R., Carlson, J., Hudson-Vitale, C., Imker, H., Kozlowski, W., Olendorf, R., & Stewart, C. (2018). How Important is Data Curation? Gaps and Opportunities for Academic Libraries. Journal of Librarianship and Scholarly Communication, 6(1), eP2198. DOI: <a href="https://doi.org/10.7710/2162-3309.2198">https://doi.org/10.7710/2162-3309.2198</a>
+          </div>
+
+          <div class="template-footer"><table width=100%><tr><td background="common/assets/img/UM.jpg" height=80 width=98></td><td background="common/assets/img/bar.jpg"></td><td width=60></td></tr></table></div>
+       </div>
+       <div style="position: absolute; top: 355px; right: 120px; color: red; font-size: 60%" class="fragment" data-fragment-index=1>
+        Documentation<br>
+        Chain of custody<br>
+        <object data="common/assets/svg/arrow_up_left.svg" type="image/svg+xml" style="margin-left: -200px; margin-top: 9px;"></object>
+       </div>
+       <div style="position: absolute; top: 247px; left: 330px; color: red; font-size: 60%; text-align: left;" class="fragment" data-fragment-index=1 >
+        Emulation<br>
+        Restricted Access<br>
+        Contact Information<br>
+        Full-Text Indexing<br>
+        <object data="common/assets/svg/arrow_right_down.svg" type="image/svg+xml" style="margin-left:120px; margin-top: -30px;"></object>
+       </div>
+      </section>
+
+      <!-- ***
+            *  Example reading List
+            * -->
+      <section data-transition="fade">
+        <div class="template-container">
+          <div class="template-header"><span>bibliography</span></div>
+          <div class="template-title" style="margin-bottom: 23px; flex: none;margin-top: 13px;">Further Reading</div>
+          <div class="template-content-container" style="overflow-y: scroll; overlow-x: hidden; margin-bottom: 42px;">
+
+            <div class="bibliography" style="max-width: 75%; margin: 0px auto 0px auto !important; max-width: 90%; font-size: 55%; line-height: 130%">
+              <ul>
+                <li>Bruhn, J. (2014). "Identifying Useful Approaches to the Governance of Indigenous Data." <i>The Governance of Indigenous Information</i> 5(2): Art. 5.</li>
+                <li>Data Curation Network (2018). "Checklist of CURATED Steps Performed by the Data Curation Network." <a href="https://datacurationnetowrk.org" target="_blank">https://datacurationnetowrk.org</a></li>
+                <li>Debord, G. (1994). <i>The Society of Spectacle</i>. New York: Zone Books.</li>
+                <li>Elsevier and the Centre for Science and Technology Studies (CWTS) (2017). <i>Open Data: The Researcher Perspective</i>. Elseveier and CWTS. <a href="https://www.elsevier.com/about/open-science/research-data/open-data-report">https://www.elsevier.com/about/open-science/research-data/open-data-report</a>.</li>
+                <li>Fecher B, Friesike S, Hebing M (2015) What Drives Academic Data Sharing? <i>PLoS ONE</i> 10(2): e0118053. <a href="https://doi.org/10.1371/journal.pone.0118053">10.1371/journal.pone.0118053</a></li>
+                <li>Kansa, E. C. (2014). The Need to Humanize Open Science. In: Moore, S. A. (ed.) <i>Issues in Open Research Data</i>. Pp 31-58. London, Ubiquity Press. DOI: <a href="https:doi.org/10.5334/ban.c">10.5334/ban.c</a>.</li>
+                <li>Kitchin, R. (2014). <i>The Data Revolution</i>. Washington DC: SAGE</li>
+                <li>Norris, T. and S. Shreeves (2017). <i>University of Miami Data Curation Initiative: Report and Recommendations</i>. University of Miami Libraries.</li>
+                <li>Norris, T., & Suomela, T. (2017). Information in the ecosystem: Against the “information ecosystem”. <i>First Monday</i>, 22(9). doi: <a href="https://doi.org/10.5210/fm.v22i9.6847">https://doi.org/10.5210/fm.v22i9.6847</a>.</li>
+                <li>Pollock, R. (2018). <i>The Open Revolution</i>. A/E/T Press.</li>
+                <li>Singer, J. W. (2000). <i>Entitlement</i>. New Haven and London: Yale University Press.</li>
+                <li>Stuart, D., G. Baynes, I. Hrynaszkiewicz, K. Allin, D. Penny, M. Lucraft, and M. Astell (2018). Research Data: Practical Challenges for Researchers in Sharing Data. <i>Springer Nature</i>. DOI: <a href="https://doi.org/10.6084/m9.figshare.5975011/" target="_blank">10.6084/m9.figshare.5975011</a>.</li>
+                <li>Tenopir, C., Allard, S., Douglass, K., Aydinoglu, A. U., Wu, L., Read, E., Manoff, M., Frame, M. (2011). Data Sharing by Scientists: Practices and Perceptions. PLoS ONE, 6(6). DOI: <a href="https://doi.org/10.1371/journal.pone.0021101">10.1371/journal.pone.0021101</a></li>
+                <li>Tenopir, C., Dalton, E. D., Allard, S., Frame, M., Pjesivac, I., Birch, B., Pollock, D. and Dorsett, K. (2015). Changes in Data Sharing and Data Reuse Practices and Perceptions among Scientists Worldwide. PLoS ONE, 10(8), e0134826. doi: <a href="https://doi.org/10.1371/journal.pone.0134826">10.1371/journal.pone.0134826</a>.</li>
+                <li>University of Miami Faculty Manual 2018 - 2019. <a href="https://fs.miami.edu/_assets/pdf/facultysenate/Documents/FacultyManual.pdf">https://fs.miami.edu/_assets/pdf/facultysenate/Documents/FacultyManual.pdf</a></li>
+                <li>Whitmire, Amanda L. (2014). GRAD 521 Research Data Management Lectures. Oregon State University Libraries. <a target="_blank" href="http://figshare.com/articles/GRAD521_Research_Data_Management_Lectures/1003835">http://figshare.com/articles/GRAD521_Research_Data_Management_Lectures/1003835</a>.</li>
+                <li>Wilkinson, M. D., M. Dumontier, I. J. Aalbersberg, G. Appleton, M. Axton, A. Baak, N. Blomberg, J.-W. Boiten, L. B. da Silva Santos, P. E. Bourne, J. Bouwman, A. J. Brookes, T. Clark, M. Crosas, I. Dillo, O. Dumon, S. Edmunds, C. T. Evelo, R. Finkers, A. Gonzalez-Beltran, A. J. G. Gray, P. Groth, C. Goble, J. S. Grethe, J. Heringa, P. A. C. ’t Hoen, R. Hooft, T. Kuhn, R. Kok, J. Kok, S. J. Lusher, M. E. Martone, A. Mons, A. L. Packer, B. Persson, P. Rocca-Serra, M. Roos, R. van Schaik, S.-A. Sansone, E. Schultes, T. Sengstag, T. Slater, G. Strawn, M. A. Swertz, M. Thompson, J. van der Lei, E. van Mulligen, J. Velterop, A. Waagmeester, P. Wittenburg, K. Wolstencroft, J. Zhao and B. Mons (2016). The FAIR Guiding Principles for scientific data management and stewardship. <i>Scientific Data</i>, 3, 160018. doi: <a href="https://doi.org/10.1038/sdata.2016.18">10.1038/sdata.2016.18</a>.</li>
+              </ul>
+            </div>
+
+          </div>
+          
+          <div class="template-footer"><table width=100%><tr><td background="common/assets/img/UM.jpg" height=80 width=98></td><td background="common/assets/img/bar.jpg"></td><td width=60></td></tr></table></div>
+       </div>
+      </section>
+
+    </div>
+  </div>
+  <script src="common/reveal/reveal.js"></script>
+  <script src="common/reveal/plugin/notes.js"></script>
+  <script src="common/reveal/plugin/markdown.js"></script>
+  <script src="common/reveal/plugin/highlight.js"></script>
+  <script src="common/js/head.min.js"></script>
+  <script>
+    Reveal.initialize({
+        width: 1366, height: 768, margin: 0.05,
+        controls: false,
+        progress: true,
+        history: true,
+        center: true,
+        mouseWheel: false,
+        chart: {
+          defaults: {
+            global: {
+              defaultFontSize: 20,
+              title: { fontColor: "#333" },
+              legend: {
+                position: "top",
+                labels: { fontColor: "#333" },
+              },
+              tooltips: {
+                labels: { fontColor: "#333" },
+              },
+            },
+            scale: {
+              scaleLabel: { fontColor: "#333" },
+              gridLines: { color: "#333", zeroLineColor: "#333" },
+              ticks: { fontColor: "#333" },
+            }
+          },
+        },
+        dependencies: [
+            { src: 'common/js/Chart.min.js' },
+            { src: 'common/js/csv2chart.js' }
+        ]
+    });
+  </script>
+</body>
+</html>

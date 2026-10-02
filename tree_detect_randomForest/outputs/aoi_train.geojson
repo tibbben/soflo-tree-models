@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "aoi_train",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::32617" } },
+"features": [
+{ "type": "Feature", "properties": { "aoi": "train" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 572255.276831, 2843598.809399999678135 ], [ 572255.276831, 2844350.776244999840856 ], [ 571656.326150000095367, 2844350.776244999840856 ], [ 571656.326150000095367, 2843598.809399999678135 ], [ 572255.276831, 2843598.809399999678135 ] ] ] } }
+]
+}
