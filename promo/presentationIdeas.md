@@ -3,6 +3,8 @@
 
 #### Tree Inventory Introduction (slide 1)
 
+- Ahsan and Rayan, Data science and AI major in college of arts and sciences
+
 For several years IDSC and the UM Libraries (Tim) have partnered with the UM Sustainability Office (Teddy Lhoutellier) to create a tree inventory on the UM Gables Campus.
 
 - always involves student interns
@@ -22,9 +24,12 @@ __NOTE:__ this is not a new problem - ML approaches to tree detection from arial
 __Side Note:__ the original tree detection for the UM campus used an inverted height map and a water flow model to identify trees (a known approach). It was  ... OK. Then the students corrected the detection errors.
 
 - _first question:_ how can we use AI coding agents to train models on labelled drone survey data
-- _second question:_ can we then use these models to recognixze trees in Big Cypress
+- _second question:_ can we then use these models to recognize trees in Big Cypress
+-  can we go beyond recognition to recognition of species
 - _third question:_ how can we responsibly encourage students to use AI in their learning
 - _fourth question:_ can the students teach me to use coding agents?
+
+- part of process is learning how to talk about this
 
 #### The approach
 
