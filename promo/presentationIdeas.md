@@ -3,6 +3,7 @@
 
 #### Tree Inventory Introduction (slide 1)
 
+- In may approached by Jerry Bonnel .... two students
 - Ahsan and Rayan, Data science and AI major in college of arts and sciences
 
 For several years IDSC and the UM Libraries (Tim) have partnered with the UM Sustainability Office (Teddy Lhoutellier) to create a tree inventory on the UM Gables Campus.
@@ -15,7 +16,10 @@ For several years IDSC and the UM Libraries (Tim) have partnered with the UM Sus
    - included student interns on Tiling the MagicVerse project 
       - to create tield meshes from the drone survey (partial failure)
 
-#### The problems we approached (still slide 1)
+These two things came together as a volunteer insternship from June until August (more or less) 
+- and then preparation for this talk when Rayan and Ahsan accepted the challenge
+
+#### The problems we approached (Slides 1 and 2)
 
 __principal problem:__ _Canned tree detection models do not perform well on south Florida urban forests; nor on landscapes in the Big Cypress National Preserve._  
 
@@ -31,11 +35,18 @@ __Side Note:__ the original tree detection for the UM campus used an inverted he
 
 - part of process is learning how to talk about this
 
+#### The sites (slides 3-6)
+
+- quite different ecosystems (slide 3)
+- lots of drone data with labeled data for the campus (slide 4-5)
+- lots of drone data in Big Cypress, not so many labels
+
 #### The approach
 
 - encourage use of AI coding agents with weekly meetings to share and guide the flow (including medium level subscriptions to claude)
 - everything shared through box (training data) and github (code base and explanaitons)
 - encourage individual approaches with shared goals
+- note that maples grow in florida ... and that cypress forest might actually be from the north east ...
 - a ver ... que pasará
 
 ### Both:  
